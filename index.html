@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SK하이닉스 본주 ⇄ ADR 괴리율</title>
+<meta name="description" content="SK하이닉스 본주(000660)와 나스닥 ADR(SKHYV)의 실시간 괴리율 대시보드" />
+<style>
+  :root{
+    --bg:#0d1015; --panel:#161b22; --panel2:#1c222c; --border:#262c37;
+    --text:#e7ebf1; --muted:#8b93a1; --muted2:#5c6472;
+    --accent:#6366f1; --accent-soft:#6366f133;
+    --pos:#f2555a; --pos-soft:#f2555a26;   /* 양(+) 프리미엄 : 한국식 빨강 */
+    --neg:#4c8dff; --neg-soft:#4c8dff26;   /* 음(−) 디스카운트 : 한국식 파랑 */
+    --live:#22c55e;
+    --shadow:0 1px 3px #0006, 0 8px 24px #0004;
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic","맑은 고딕",Apple SD Gothic Neo,sans-serif;
+    --mono:"SF Mono",ui-monospace,"Cascadia Mono",Consolas,"D2Coding",monospace;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6fa; --panel:#ffffff; --panel2:#f7f9fc; --border:#e2e6ee;
+    --text:#141a24; --muted:#5b6472; --muted2:#98a1b2;
+    --accent-soft:#6366f11f; --pos-soft:#f2555a1a; --neg-soft:#4c8dff1a;
+    --shadow:0 1px 2px #0000000a, 0 10px 30px #1a233812;
+  }
+  @media (prefers-color-scheme:light){
+    :root:not([data-theme="dark"]){
+      --bg:#f4f6fa; --panel:#ffffff; --panel2:#f7f9fc; --border:#e2e6ee;
+      --text:#141a24; --muted:#5b6472; --muted2:#98a1b2;
+      --accent-soft:#6366f11f; --pos-soft:#f2555a1a; --neg-soft:#4c8dff1a;
+      --shadow:0 1px 2px #0000000a, 0 10px 30px #1a233812;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1200px 600px at 80% -10%, #6366f114, transparent 60%),var(--bg);
+    color:var(--text); font-family:var(--font); line-height:1.5;
+    -webkit-font-smoothing:antialiased; padding:22px 16px 64px; min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .title h1{font-size:1.34rem;margin:0;letter-spacing:-.02em;font-weight:750}
+  .title .sub{color:var(--muted);font-size:.85rem;margin-top:4px}
+  .title .tick{font-family:var(--mono);color:var(--muted2);font-size:.76rem;margin-top:6px}
+  .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{
+    background:var(--panel2);color:var(--text);border:1px solid var(--border);
+    border-radius:10px;padding:8px 13px;font-size:.83rem;font-weight:600;cursor:pointer;
+    font-family:var(--font);display:inline-flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .btn.icon{padding:8px 10px}
+
+  .status{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex:none}
+  .dot.on{background:var(--live);box-shadow:0 0 0 3px #22c55e2e}
+  .dot.pos{background:var(--pos)} .dot.neg{background:var(--neg)}
+  .spin{animation:sp 1s linear infinite} @keyframes sp{to{transform:rotate(360deg)}}
+
+  .grid{display:grid;gap:14px}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  /* ── Hero ── */
+  .hero{padding:26px 26px 22px;position:relative;overflow:hidden}
+  .hero .eyebrow{font-size:.8rem;color:var(--muted);font-weight:600;letter-spacing:.01em}
+  .hero .bignum{font-size:clamp(3.2rem,11vw,5.2rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .hero .verdict{font-size:1.02rem;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+  .hero .pill{font-size:.74rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor}
+  .hero .explain{color:var(--muted);font-size:.9rem;margin-top:12px;max-width:62ch}
+  .hero .explain b{color:var(--text);font-variant-numeric:tabular-nums}
+  .hero .glow{position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;filter:blur(50px);opacity:.20;pointer-events:none;background:var(--accent)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .hero.ispos .glow{background:var(--pos)} .hero.isneg .glow{background:var(--neg)}
+
+  /* ── Metric cards ── */
+  .cards{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+  .card{padding:16px 17px}
+  .card .k{font-size:.78rem;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:7px}
+  .card .k .sym{font-family:var(--mono);font-size:.7rem;color:var(--muted2);background:var(--panel2);padding:1px 6px;border-radius:6px;border:1px solid var(--border)}
+  .card .v{font-size:1.6rem;font-weight:750;margin-top:9px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .card .v small{font-size:.9rem;color:var(--muted);font-weight:600}
+  .card .meta{margin-top:8px;font-size:.74rem;color:var(--muted2);display:flex;flex-direction:column;gap:2px}
+  .card .chg{font-size:.82rem;font-weight:650;font-variant-numeric:tabular-nums}
+  .badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:.02em}
+  .badge.live{color:var(--live);background:#22c55e1f}
+  .badge.snap{color:var(--muted);background:var(--panel2);border:1px solid var(--border)}
+  .badge.stale{color:#eab308;background:#eab30822}
+  .card.editable{cursor:default}
+  .ratio-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .ratio-row input{width:78px}
+
+  input[type=number],input[type=text]{
+    background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    border-radius:9px;padding:8px 10px;font-family:var(--mono);font-size:.92rem;width:100%;
+  }
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  label.fld{display:flex;flex-direction:column;gap:5px;font-size:.76rem;color:var(--muted);font-weight:600}
+
+  .sec-title{display:flex;align-items:center;gap:9px;font-weight:700;font-size:.98rem;margin:2px 0}
+  .sec-title .hint{font-weight:500;font-size:.78rem;color:var(--muted)}
+
+  /* ── Chart ── */
+  .chart-wrap{padding:18px 18px 12px}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .chart-head .rng{display:flex;gap:5px}
+  .chart-head .rng button{font-size:.72rem;padding:4px 9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-weight:600}
+  .chart-head .rng button.active{color:var(--text);background:var(--accent-soft);border-color:var(--accent)}
+  svg.chart{width:100%;height:210px;display:block;overflow:visible}
+  .empty{color:var(--muted);font-size:.85rem;text-align:center;padding:34px 0}
+
+  /* ── Calculator ── */
+  .calc{padding:18px}
+  .calc .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:12px}
+  .calc .out{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:18px;align-items:baseline}
+  .calc .out .big{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .calc .out .lbl{font-size:.76rem;color:var(--muted);font-weight:600}
+  .calc .out .col{display:flex;flex-direction:column;gap:2px}
+
+  footer{margin-top:26px;color:var(--muted2);font-size:.76rem;line-height:1.7}
+  footer .note{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;color:var(--muted)}
+  footer code{font-family:var(--mono);background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+  .disclaimer{opacity:.85}
+
+  @media (max-width:560px){
+    body{padding:16px 11px 48px}
+    .hero{padding:22px 18px 18px}
+    .card .v{font-size:1.4rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="title">
+      <h1>SK하이닉스 본주 ⇄ ADR 괴리율</h1>
+      <div class="sub">KOSPI 본주 <b>000660</b> vs 나스닥 ADR <b>SKHYV</b> · 1 ADR = 0.1주(10:1)</div>
+      <div class="tick" id="tick">데이터 불러오는 중…</div>
+    </div>
+    <div class="top-actions">
+      <div class="status"><span class="dot" id="livedot"></span><span id="livetxt">연결 중</span></div>
+      <button class="btn icon" id="themeBtn" title="라이트/다크 전환">🌓</button>
+      <button class="btn" id="refreshBtn"><span id="refreshIco">↻</span> 새로고침</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- HERO -->
+    <section class="panel hero" id="hero">
+      <div class="glow"></div>
+      <div class="eyebrow">현재 괴리율 <span id="heroBasis" class="badge snap">—</span></div>
+      <div class="bignum" id="disp">—</div>
+      <div class="verdict" id="verdict"><span class="pill">—</span></div>
+      <div class="explain" id="explain">본주와 ADR의 이론가 대비 실제 가격 차이를 계산합니다.</div>
+    </section>
+
+    <!-- METRIC CARDS -->
+    <section class="grid cards">
+      <div class="panel card">
+        <div class="k">본주 <span class="sym">000660.KS</span></div>
+        <div class="v" id="cVal">—</div>
+        <div class="chg" id="cChg">—</div>
+        <div class="meta"><span id="cTime">—</span><span id="cState">—</span></div>
+      </div>
+      <div class="panel card">
+        <div class="k">ADR <span class="sym">SKHYV</span></div>
+        <div class="v" id="aVal">—</div>
+        <div class="chg" id="aChg">—</div>
+        <div class="meta"><span id="aTime">—</span><span id="aState">—</span></div>
+      </div>
+      <div class="panel card">
+        <div class="k">환율 USD/KRW <span class="badge live" id="fxBadge" style="display:none">LIVE</span></div>
+        <div class="v" id="fVal">—</div>
+        <div class="chg" id="fChg">—</div>
+        <div class="meta"><span id="fTime">—</span><span id="fSrc">—</span></div>
+      </div>
+      <div class="panel card">
+        <div class="k">ADR 이론가 <span class="sym">fair</span></div>
+        <div class="v" id="fairVal">—</div>
+        <div class="meta"><span>본주 × 비율 ÷ 환율</span><span>ADR이 이 값이면 괴리율 0%</span></div>
+      </div>
+      <div class="panel card">
+        <div class="k">ADR 기준 본주 환산가</div>
+        <div class="v" id="impVal">—</div>
+        <div class="meta"><span id="impCmp">—</span><span>ADR가격 × 환율 ÷ 비율</span></div>
+      </div>
+      <div class="panel card editable">
+        <div class="k">ADR 비율 <span class="sym">shares/ADR</span></div>
+        <div class="ratio-row">
+          <input type="number" id="ratioInput" step="0.01" min="0.0001" value="0.1" />
+          <span class="meta" style="margin:0">주 / 1 ADR</span>
+        </div>
+        <div class="meta"><span id="ratioNote">10 ADR = 본주 1주</span></div>
+      </div>
+    </section>
+
+    <!-- CHART -->
+    <section class="panel chart-wrap">
+      <div class="chart-head">
+        <div class="sec-title">괴리율 추이 <span class="hint" id="chartHint"></span></div>
+        <div class="rng" id="rangeBtns">
+          <button data-n="60">60p</button>
+          <button data-n="240">240p</button>
+          <button data-n="0" class="active">전체</button>
+        </div>
+      </div>
+      <div id="chartHost"><div class="empty">히스토리가 쌓이면 그래프가 표시됩니다.</div></div>
+    </section>
+
+    <!-- CALCULATOR -->
+    <section class="panel calc">
+      <div class="sec-title">수동 계산기 <span class="hint">HTS·증권사 실시간 호가를 직접 넣어 괴리율을 계산</span></div>
+      <div class="row">
+        <label class="fld">본주 (KRW)<input type="number" id="mCommon" step="500" /></label>
+        <label class="fld">ADR (USD)<input type="number" id="mAdr" step="0.01" /></label>
+        <label class="fld">환율 USD/KRW<input type="number" id="mFx" step="0.01" /></label>
+        <label class="fld">비율 (주/ADR)<input type="number" id="mRatio" step="0.01" /></label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="mLoad">현재값 불러오기</button>
+        <button class="btn" id="mCalc" style="border-color:var(--accent);background:var(--accent-soft)">계산</button>
+      </div>
+      <div class="out">
+        <div class="col"><span class="lbl">괴리율</span><span class="big" id="mDisp">—</span></div>
+        <div class="col"><span class="lbl">ADR 이론가</span><span class="big" id="mFair" style="font-size:1.25rem">—</span></div>
+        <div class="col"><span class="lbl">본주 환산가(ADR기준)</span><span class="big" id="mImp" style="font-size:1.25rem">—</span></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="note" id="freshNote"></div>
+    <div class="note">
+      <b>괴리율 정의</b> · <code>ADR 이론가 = 본주(KRW) × 비율 ÷ (USD/KRW)</code>,
+      <code>괴리율 = (ADR 실제가 − ADR 이론가) ÷ ADR 이론가 × 100</code>.
+      양(+)이면 ADR이 본주 대비 <span class="pos">프리미엄</span>, 음(−)이면 <span class="neg">디스카운트</span>.
+      <br>
+      <b>⚠ 두 시장은 시간대가 겹치지 않습니다.</b> KOSPI(09:00–15:30 KST)와 미국 정규장은 서로 열려있지 않아,
+      어느 순간이든 한쪽 시세는 직전 장 종가입니다. 각 값의 시각·장상태를 함께 표시하니 참고하세요.
+      본주·ADR·환율 모두 GitHub Actions가 약 5분 주기로 Yahoo에서 수집한 스냅샷이며, 페이지는 60초마다 최신 스냅샷을 다시 불러옵니다.
+      (참고용 일 기준환율만 er-api/jsdelivr에서 조회) 무료 정적 호스팅 특성상 초 단위 실시간은 불가능하며, 약 5분 지연의 <b>준실시간</b>입니다.
+    </div>
+    <div class="disclaimer">
+      데이터 출처: Yahoo Finance(주가·환율, <code>data.json</code>) · open.er-api.com / jsdelivr(실시간 환율).
+      본 페이지는 정보 제공용이며 투자 자문이 아닙니다. 시세는 지연·오차가 있을 수 있습니다.
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const DATA_URL = "./data.json";
+const $ = (id) => document.getElementById(id);
+
+const state = {
+  snap: null,        // data.json
+  ratio: 0.1,
+  liveFx: null,      // {rate, src, time}
+  chartRange: 0,     // 0 = all
+};
+
+// ── formatters ─────────────────────────────────────────────
+const nf0 = new Intl.NumberFormat("ko-KR", {maximumFractionDigits:0});
+const nf2 = new Intl.NumberFormat("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+const krw = (n) => (n==null||isNaN(n)) ? "—" : nf0.format(Math.round(n)) + "원";
+const usd = (n) => (n==null||isNaN(n)) ? "—" : "$" + nf2.format(n);
+const pct = (n,d=2) => (n==null||isNaN(n)) ? "—" : (n>=0?"+":"") + n.toFixed(d) + "%";
+const signCls = (n) => n==null?"" : (n>=0?"pos":"neg");
+
+function kst(epochSec){
+  if(!epochSec) return "—";
+  try{
+    return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"2-digit",day:"2-digit",
+      hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(epochSec*1000)) + " KST";
+  }catch(e){ return "—"; }
+}
+function ago(epochSec){
+  if(!epochSec) return "";
+  const s = Math.floor(Date.now()/1000 - epochSec);
+  if(s < 0) return "방금";
+  if(s < 90) return s + "초 전";
+  if(s < 5400) return Math.round(s/60) + "분 전";
+  if(s < 172800) return Math.round(s/3600) + "시간 전";
+  return Math.round(s/86400) + "일 전";
+}
+function sessionLabel(leg){
+  if(!leg) return {t:"—", on:false};
+  const now = Date.now()/1000;
+  if(leg.sessStart && leg.sessEnd && now >= leg.sessStart && now <= leg.sessEnd)
+    return {t:"정규장 진행중", on:true};
+  return {t:"장마감·직전시세", on:false};
+}
+
+// ── fetch helpers ──────────────────────────────────────────
+function fetchTimeout(url, ms, opts={}){
+  const c = new AbortController();
+  const id = setTimeout(()=>c.abort(), ms);
+  return fetch(url, {...opts, signal:c.signal, cache:"no-store"}).finally(()=>clearTimeout(id));
+}
+async function loadSnapshot(){
+  try{
+    const r = await fetchTimeout(DATA_URL + "?_=" + Date.now(), 9000);
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    state.snap = await r.json();
+    if(typeof state.snap.ratio === "number" && !state._ratioTouched){
+      state.ratio = state.snap.ratio;
+      $("ratioInput").value = state.snap.ratio;
+    }
+    return true;
+  }catch(e){ console.warn("snapshot load failed:", e); return false; }
+}
+async function loadLiveFx(){
+  // 1차: open.er-api.com  2차: jsdelivr currency-api  (둘 다 CORS 허용)
+  try{
+    const r = await fetchTimeout("https://open.er-api.com/v6/latest/USD", 7000);
+    const j = await r.json();
+    if(j && j.rates && j.rates.KRW){
+      state.liveFx = {rate:j.rates.KRW, src:"er-api", time:j.time_last_update_unix || Math.floor(Date.now()/1000)};
+      return true;
+    }
+  }catch(e){ /* fall through */ }
+  try{
+    const r = await fetchTimeout("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json", 7000);
+    const j = await r.json();
+    if(j && j.usd && j.usd.krw){
+      state.liveFx = {rate:j.usd.krw, src:"jsdelivr", time:Math.floor(Date.now()/1000)};
+      return true;
+    }
+  }catch(e){ /* give up, use snapshot fx */ }
+  return false;
+}
+
+// ── core compute ───────────────────────────────────────────
+function effectiveFx(){
+  const f = state.snap && state.snap.fx;
+  // 헤드라인은 3개 시세를 같은 스냅샷(Yahoo, 장중 약 5분 갱신)으로 일관되게 사용한다.
+  // 클라이언트 환율(er-api/jsdelivr)은 일 1회 갱신이라 스냅샷이 없을 때의 폴백/참고용이다.
+  if(f && f.price && !f.stale)
+    return {rate:f.price, kind:"yahoo", src:"Yahoo · 5분 스냅샷", time:f.marketTime};
+  if(state.liveFx && state.liveFx.rate)
+    return {rate:state.liveFx.rate, kind:"erapi", src:"er-api · 일 기준(폴백)", time:state.liveFx.time};
+  if(f && f.price)
+    return {rate:f.price, kind:"yahoo", src:"Yahoo · 스냅샷(직전)", time:f.marketTime};
+  return {rate:null, kind:"none", src:"—", time:null};
+}
+function compute(common, adr, fx, ratio){
+  if(!(common>0 && adr>0 && fx>0 && ratio>0)) return null;
+  const fair = common * ratio / fx;
+  const implied = adr * fx / ratio;
+  const disparity = (adr - fair) / fair * 100;
+  return {fair, implied, disparity};
+}
+
+// ── render ─────────────────────────────────────────────────
+function render(){
+  const s = state.snap;
+  const common = s && s.common ? s.common.price : null;
+  const adr = s && s.adr ? s.adr.price : null;
+  const fx = effectiveFx();
+  const ratio = state.ratio;
+  const r = compute(common, adr, fx.rate, ratio);
+
+  // hero
+  const hero = $("hero");
+  if(r){
+    const d = r.disparity;
+    $("disp").textContent = pct(d);
+    $("disp").className = "bignum " + signCls(d);
+    hero.classList.toggle("ispos", d>=0);
+    hero.classList.toggle("isneg", d<0);
+    const isPrem = d>=0;
+    const pill = `<span class="pill ${signCls(d)}">${isPrem?"ADR 프리미엄":"ADR 디스카운트"}</span>`;
+    $("verdict").innerHTML = pill +
+      `<span class="${signCls(d)}">ADR이 이론가 대비 ${Math.abs(d).toFixed(2)}% ${isPrem?"비쌈":"쌈"}</span>`;
+    $("explain").innerHTML =
+      `ADR 실제가 <b>${usd(adr)}</b> vs 이론가 <b>${usd(r.fair)}</b>. ` +
+      `달리 보면 ADR이 매긴 본주 값은 <b>${krw(r.implied)}</b>인데 실제 본주는 <b>${krw(common)}</b>입니다 ` +
+      `(비율 1 ADR = ${ratio}주, 환율 ${nf2.format(fx.rate)} · ${fx.kind==="yahoo"?"5분 스냅샷":"일 기준"}).`;
+    $("heroBasis").textContent = fx.kind==="yahoo" ? "5분 스냅샷 기준" : "환율 폴백(일 기준)";
+    $("heroBasis").className = "badge snap";
+  }else{
+    $("disp").textContent = "—";
+    $("explain").textContent = "시세를 불러오지 못했습니다. 잠시 후 새로고침하거나 아래 수동 계산기를 사용하세요.";
+  }
+
+  // common card
+  if(s && s.common){
+    const c = s.common;
+    $("cVal").innerHTML = krw(c.price);
+    const chg = c.prevClose ? (c.price - c.prevClose)/c.prevClose*100 : null;
+    $("cChg").className = "chg " + signCls(chg);
+    $("cChg").textContent = chg==null ? "" : `${pct(chg)} · 전일 ${krw(c.prevClose)}`;
+    $("cTime").textContent = `${kst(c.marketTime)} · ${ago(c.marketTime)}`;
+    const st = sessionLabel(c);
+    $("cState").innerHTML = `<span class="dot ${st.on?"on":""}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${st.t}${c.stale?" · 재사용":""}`;
+  }
+  // adr card
+  if(s && s.adr){
+    const a = s.adr;
+    $("aVal").innerHTML = usd(a.price);
+    const chg = a.prevClose ? (a.price - a.prevClose)/a.prevClose*100 : null;
+    $("aChg").className = "chg " + signCls(chg);
+    $("aChg").textContent = chg==null ? "" : `${pct(chg)} · 전일 ${usd(a.prevClose)}`;
+    $("aTime").textContent = `${kst(a.marketTime)} · ${ago(a.marketTime)}`;
+    const st = sessionLabel(a);
+    $("aState").innerHTML = `<span class="dot ${st.on?"on":""}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${st.t}${a.stale?" · 재사용":""}`;
+  }
+  // fx card
+  $("fVal").innerHTML = fx.rate ? nf2.format(fx.rate) + " <small>원</small>" : "—";
+  const fb = $("fxBadge");
+  fb.style.display = "inline-block";
+  fb.className = "badge " + (fx.kind==="yahoo" ? "snap" : "stale");
+  fb.textContent = fx.kind==="yahoo" ? "5분" : "일 기준";
+  if(s && s.fx && s.fx.prevClose && fx.rate){
+    const chg = (fx.rate - s.fx.prevClose)/s.fx.prevClose*100;
+    $("fChg").className = "chg " + signCls(chg);
+    $("fChg").textContent = `${pct(chg)} · 전일 ${nf2.format(s.fx.prevClose)}`;
+  }
+  $("fTime").textContent = fx.time ? `${kst(fx.time)} · ${ago(fx.time)}` : "—";
+  let fsrc = "출처: " + fx.src;
+  if(state.liveFx && fx.kind==="yahoo") fsrc += ` · 참고(일 기준) ${nf2.format(state.liveFx.rate)}`;
+  $("fSrc").textContent = fsrc;
+
+  // derived cards
+  $("fairVal").innerHTML = r ? usd(r.fair) : "—";
+  $("impVal").innerHTML = r ? krw(r.implied) : "—";
+  if(r && common){
+    const gap = r.implied - common;
+    $("impCmp").innerHTML = `실제 본주 ${krw(common)} <span class="${signCls(gap)}">(${gap>=0?"+":""}${krw(gap)})</span>`;
+  }
+
+  // tick + fresh note
+  $("tick").textContent = s && s.updated
+    ? `스냅샷 ${kst(Math.floor(new Date(s.updated).getTime()/1000))} 수집 · ${ago(Math.floor(new Date(s.updated).getTime()/1000))}`
+    : "스냅샷 없음";
+  renderFreshNote();
+  renderChart();
+}
+
+function renderFreshNote(){
+  const s = state.snap;
+  if(!s){ $("freshNote").innerHTML = "<b>data.json</b> 을 불러오지 못했습니다. GitHub Actions가 최소 1회 실행되어야 스냅샷이 생성됩니다."; return; }
+  const errs = (s.errors && s.errors.length) ? ` · ⚠ 수집오류: ${s.errors.join("; ")}` : "";
+  const fx = effectiveFx();
+  $("freshNote").innerHTML =
+    `<b>데이터 신선도</b> · 모든 시세는 GitHub Actions(약 5분 주기) Yahoo 수집 스냅샷입니다. ` +
+    `본주 ${ago(s.common&&s.common.marketTime)}, ADR ${ago(s.adr&&s.adr.marketTime)}, 환율 ${fx.kind==="yahoo"?ago(fx.time):"일 기준(폴백)"}. ` +
+    `히스토리 ${s.history?s.history.length:0}포인트.${errs}`;
+}
+
+// ── chart (hand-rolled SVG) ────────────────────────────────
+function renderChart(){
+  const host = $("chartHost");
+  const hist = (state.snap && state.snap.history) || [];
+  let data = hist.filter(p => typeof p.disparity === "number");
+  if(state.chartRange > 0) data = data.slice(-state.chartRange);
+  if(data.length < 2){
+    host.innerHTML = `<div class="empty">히스토리가 ${data.length}개 있습니다. 2개 이상 쌓이면 그래프가 표시됩니다.</div>`;
+    $("chartHint").textContent = "";
+    return;
+  }
+  const W = 1000, H = 210, padL = 46, padR = 14, padT = 14, padB = 22;
+  const xs = data.map((_,i)=>i);
+  const ys = data.map(p=>p.disparity);
+  let ymin = Math.min(...ys), ymax = Math.max(...ys);
+  if(ymin===ymax){ ymin-=1; ymax+=1; }
+  const ypad = (ymax-ymin)*0.15; ymin-=ypad; ymax+=ypad;
+  if(ymin>0) ymin=Math.min(ymin,0); if(ymax<0) ymax=Math.max(ymax,0); // include zero line
+  const X = i => padL + (i/(data.length-1))*(W-padL-padR);
+  const Y = v => padT + (1-(v-ymin)/(ymax-ymin))*(H-padT-padB);
+  const last = ys[ys.length-1];
+  const col = last>=0 ? "var(--pos)" : "var(--neg)";
+  const soft = last>=0 ? "var(--pos-soft)" : "var(--neg-soft)";
+
+  let line = "", area = "";
+  data.forEach((p,i)=>{ const x=X(i).toFixed(1), y=Y(p.disparity).toFixed(1);
+    line += (i?"L":"M")+x+" "+y+" "; });
+  area = line + `L${X(data.length-1).toFixed(1)} ${Y(ymin).toFixed(1)} L${X(0).toFixed(1)} ${Y(ymin).toFixed(1)} Z`;
+
+  // y gridlines (zero + min/max)
+  const ticks = [ymax, (ymax+ymin)/2, ymin];
+  if(ymin<0 && ymax>0) ticks.push(0);
+  const grid = [...new Set(ticks)].map(v=>{
+    const y=Y(v).toFixed(1); const zero = Math.abs(v)<1e-9;
+    return `<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="${zero?'var(--muted)':'var(--border)'}" stroke-width="${zero?1.2:1}" stroke-dasharray="${zero?'0':'3 4'}"/>`
+      + `<text x="${padL-8}" y="${(+y+3).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${(v>=0?"+":"")+v.toFixed(1)}</text>`;
+  }).join("");
+
+  const firstT = data[0].t, lastT = data[data.length-1].t;
+  const tlab = (iso)=>{ try{ return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(iso)); }catch(e){ return ""; } };
+
+  host.innerHTML =
+    `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="괴리율 추이">
+      <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="${soft}"/><stop offset="1" stop-color="transparent"/></linearGradient></defs>
+      ${grid}
+      <path d="${area}" fill="url(#g)"/>
+      <path d="${line}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${X(data.length-1).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="3.6" fill="${col}"/>
+    </svg>`;
+  $("chartHint").textContent = `${tlab(firstT)} → ${tlab(lastT)} · ${data.length}p · 최근 ${pct(last)}`;
+}
+
+// ── manual calculator ──────────────────────────────────────
+function manualCalc(){
+  const c=+$("mCommon").value, a=+$("mAdr").value, f=+$("mFx").value, ra=+$("mRatio").value;
+  const r = compute(c,a,f,ra);
+  if(!r){ $("mDisp").textContent="입력확인"; $("mDisp").className="big"; $("mFair").textContent="—"; $("mImp").textContent="—"; return; }
+  $("mDisp").textContent = pct(r.disparity);
+  $("mDisp").className = "big " + signCls(r.disparity);
+  $("mFair").textContent = usd(r.fair);
+  $("mImp").textContent = krw(r.implied);
+}
+function loadCurrentIntoCalc(){
+  const s=state.snap, fx=effectiveFx();
+  if(s&&s.common) $("mCommon").value = s.common.price;
+  if(s&&s.adr) $("mAdr").value = s.adr.price;
+  if(fx.rate) $("mFx").value = (Math.round(fx.rate*100)/100);
+  $("mRatio").value = state.ratio;
+  manualCalc();
+}
+
+// ── refresh loop ───────────────────────────────────────────
+let refreshing=false;
+async function refresh(spin=true){
+  if(refreshing) return; refreshing=true;
+  if(spin) $("refreshIco").classList.add("spin");
+  $("livedot").className="dot"; $("livetxt").textContent="갱신 중";
+  const [okSnap] = await Promise.all([ loadSnapshot(), loadLiveFx() ]);
+  render();
+  if(okSnap){ $("livedot").className="dot on"; $("livetxt").textContent="자동 갱신 60초"; }
+  else if(state.liveFx){ $("livedot").className="dot neg"; $("livetxt").textContent="환율만 연결"; }
+  else{ $("livedot").className="dot"; $("livetxt").textContent="오프라인"; }
+  $("refreshIco").classList.remove("spin");
+  refreshing=false;
+}
+
+// ── events ─────────────────────────────────────────────────
+$("refreshBtn").onclick = ()=>refresh(true);
+$("ratioInput").addEventListener("input", e=>{
+  const v=+e.target.value; if(v>0){ state.ratio=v; state._ratioTouched=true;
+    $("ratioNote").textContent = `${(1/v).toFixed(v<1?0:2)} ADR = 본주 1주`; render(); }
+});
+$("rangeBtns").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  state.chartRange=+b.dataset.n;
+  [...$("rangeBtns").children].forEach(x=>x.classList.toggle("active", x===b));
+  renderChart();
+});
+$("mCalc").onclick = manualCalc;
+$("mLoad").onclick = loadCurrentIntoCalc;
+["mCommon","mAdr","mFx","mRatio"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")manualCalc();}));
+
+// theme toggle
+(function(){
+  const root=document.documentElement;
+  const saved=localStorage.getItem("theme"); if(saved) root.setAttribute("data-theme",saved);
+  $("themeBtn").onclick=()=>{
+    const cur=root.getAttribute("data-theme") ||
+      (matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");
+    const next=cur==="dark"?"light":"dark";
+    root.setAttribute("data-theme",next); localStorage.setItem("theme",next); renderChart();
+  };
+})();
+
+// init
+refresh(true).then(loadCurrentIntoCalc);
+setInterval(()=>refresh(false), 60000);           // 60초마다 갱신
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) refresh(false); });
+</script>
+</body>
+</html>

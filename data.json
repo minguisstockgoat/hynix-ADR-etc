@@ -1,0 +1,73 @@
+{
+  "updated": "2026-07-12T12:48:35+00:00",
+  "ratio": 0.1,
+  "symbols": {
+    "common": "000660.KS",
+    "adr": "SKHYV",
+    "fx": "KRW=X"
+  },
+  "common": {
+    "symbol": "000660.KS",
+    "price": 2180000.0,
+    "currency": "KRW",
+    "prevClose": 2186000.0,
+    "marketTime": 1783665029,
+    "marketState": null,
+    "exchange": "KSC",
+    "gmtoffset": 32400,
+    "tzName": "Asia/Seoul",
+    "sessStart": 1783641600,
+    "sessEnd": 1783663200,
+    "stale": false
+  },
+  "adr": {
+    "symbol": "SKHYV",
+    "price": 168.01,
+    "currency": "USD",
+    "prevClose": 149.0,
+    "marketTime": 1783713600,
+    "marketState": null,
+    "exchange": "NGM",
+    "gmtoffset": -14400,
+    "tzName": "America/New_York",
+    "sessStart": 1783690200,
+    "sessEnd": 1783713600,
+    "stale": false
+  },
+  "fx": {
+    "symbol": "KRW=X",
+    "price": 1498.87,
+    "currency": "KRW",
+    "prevClose": 1506.48,
+    "marketTime": 1783717598,
+    "marketState": null,
+    "exchange": "CCY",
+    "gmtoffset": 3600,
+    "tzName": "Europe/London",
+    "sessStart": 1783638000,
+    "sessEnd": 1783724340,
+    "stale": false
+  },
+  "errors": [],
+  "adr_fair_usd": 145.4429,
+  "implied_common_krw": 2518251.49,
+  "disparity_pct": 15.5161,
+  "history": [
+    {
+      "t": "2026-07-12T11:50:41+00:00",
+      "common": 2180000.0,
+      "adr": 168.01,
+      "fx": 1498.87,
+      "fair": 145.4429,
+      "disparity": 15.5161
+    },
+    {
+      "t": "2026-07-12T12:48:35+00:00",
+      "common": 2180000.0,
+      "adr": 168.01,
+      "fx": 1498.87,
+      "fair": 145.4429,
+      "disparity": 15.5161
+    }
+  ]
+}
