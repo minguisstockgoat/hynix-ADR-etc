@@ -314,21 +314,17 @@ function fetchTimeout(url, ms, opts={}){
   const id = setTimeout(()=>c.abort(), ms);
   return fetch(url, {...opts, signal:c.signal, cache:"no-store"}).finally(()=>clearTimeout(id));
 }
-// 공개 CORS 프록시(순차 폴백) — 브라우저에서 CORS 없는 API 직접 수신용
-const PROXIES = [
-  (u) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
-  (u) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
-  (u) => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+// 공개 CORS 프록시 — 브라우저에서 CORS 없는 API 직접 수신용. 여러 개를 '동시에' 시도해
+// 가장 먼저 성공하는 응답을 사용(하나만 살아있어도 OK) → 간헐적 실패에 강함.
+const PROXY_FETCHERS = [
+  async (url, ms) => { const r = await fetchTimeout("https://api.allorigins.win/raw?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
+  async (url, ms) => { const r = await fetchTimeout("https://api.allorigins.win/get?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse((await r.json()).contents); },
+  async (url, ms) => { const r = await fetchTimeout("https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
+  async (url, ms) => { const r = await fetchTimeout("https://corsproxy.io/?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
 ];
-async function proxiedJson(url, ms=7000){
-  for(const mk of PROXIES){
-    try{
-      const r = await fetchTimeout(mk(url), ms);
-      if(!r.ok) continue;
-      return JSON.parse(await r.text());
-    }catch(e){ /* 다음 프록시 */ }
-  }
-  return null;
+function raceProxies(url, validate, ms=8000){
+  const tries = PROXY_FETCHERS.map(f => f(url, ms).then(j => { if(validate && !validate(j)) throw new Error("invalid"); return j; }));
+  return Promise.any(tries).then(j => j).catch(() => null);
 }
 
 async function loadSnapshot(){
@@ -365,30 +361,32 @@ function parseNaverCommon(d){
   return {source:"naver-live", effective:{venue, price:leg.price, prevClose:leg.prevClose, ts:leg.ts}, krx, nxt};
 }
 async function loadLiveCommon(){
-  const j = await proxiedJson("https://polling.finance.naver.com/api/realtime/domestic/stock/000660");
-  if(j && j.datas && j.datas[0] && _numko(j.datas[0].closePrice)!=null){
+  const j = await raceProxies("https://polling.finance.naver.com/api/realtime/domestic/stock/000660",
+    (x) => x && x.datas && x.datas[0] && _numko(x.datas[0].closePrice)!=null);
+  if(j){
     state.liveCommon = parseNaverCommon(j.datas[0]);
     state.liveCommon.fetchedAt = Math.floor(Date.now()/1000);
     return true;
   }
-  state.liveCommon = null; return false;
+  return false;   // 수신 실패 시 직전 실시간값 유지 — 오래된 스냅샷으로 되돌아가지 않음
 }
 // ADR: Yahoo SKHYV 실시간 (프록시 경유)
 async function loadLiveAdr(){
-  const j = await proxiedJson("https://query1.finance.yahoo.com/v8/finance/chart/SKHYV?range=1d&interval=1m");
-  const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
-  if(m && m.regularMarketPrice){
+  const j = await raceProxies("https://query1.finance.yahoo.com/v8/finance/chart/SKHYV?range=1d&interval=1m",
+    (x) => x && x.chart && x.chart.result && x.chart.result[0] && x.chart.result[0].meta && x.chart.result[0].meta.regularMarketPrice!=null);
+  if(j){
+    const m = j.chart.result[0].meta;
     const per=(m.currentTradingPeriod&&m.currentTradingPeriod.regular)||{};
     state.liveAdr={price:m.regularMarketPrice, prevClose:m.chartPreviousClose||m.previousClose,
       marketTime:m.regularMarketTime, sessStart:per.start, sessEnd:per.end};
     return true;
   }
-  state.liveAdr=null; return false;
+  return false;   // 직전 실시간값 유지
 }
 // 환율: Yahoo KRW=X(분단위) 우선 → fxratesapi → er-api → jsdelivr
 async function loadLiveFx(){
   const yq = "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?range=1d&interval=1m";
-  const j = await proxiedJson(yq, 7000);
+  const j = await raceProxies(yq, (x)=>x&&x.chart&&x.chart.result&&x.chart.result[0]&&x.chart.result[0].meta&&x.chart.result[0].meta.regularMarketPrice!=null, 7000);
   const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
   if(m && m.regularMarketPrice){
     state.liveFx={rate:m.regularMarketPrice, src:"Yahoo 실시간", time:m.regularMarketTime||Math.floor(Date.now()/1000), intraday:true};
@@ -504,7 +502,9 @@ function render(){
     }
     $("cVenues").innerHTML = parts.join("<br>") || "";
     $("cTime").textContent = `${kst(eff.ts)} · ${ago(eff.ts)}`;
-    $("cState").textContent = (cd.live?"실시간 · ":"스냅샷 · ") + (cd.source==="yahoo"?"Yahoo(NXT미제공)":"네이버 금융(KRX+NXT)");
+    const retained = cd.live && cd.fetchedAt && (Date.now()/1000 - cd.fetchedAt > 90);
+    $("cState").textContent = (cd.live ? (retained ? "실시간(수신 지연·재시도 중) · " : "실시간 · ") : "스냅샷 · ")
+      + (cd.source==="yahoo" ? "Yahoo(NXT미제공)" : "네이버 금융(KRX+NXT)");
   }
 
   // adr card
