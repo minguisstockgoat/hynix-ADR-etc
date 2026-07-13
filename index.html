@@ -314,16 +314,26 @@ function fetchTimeout(url, ms, opts={}){
   const id = setTimeout(()=>c.abort(), ms);
   return fetch(url, {...opts, signal:c.signal, cache:"no-store"}).finally(()=>clearTimeout(id));
 }
-// 공개 CORS 프록시 — 브라우저에서 CORS 없는 API 직접 수신용. 여러 개를 '동시에' 시도해
-// 가장 먼저 성공하는 응답을 사용(하나만 살아있어도 OK) → 간헐적 실패에 강함.
-const PROXY_FETCHERS = [
+// 전용 CORS 프록시(Cloudflare Worker) — 안정적. 이걸 최우선으로 쓰고,
+// 혹시 실패하면 공개 프록시들을 병렬로 시도(폴백). 비워두면 공개 프록시만 사용.
+const WORKER = "https://hynix-proxy.eogks879.workers.dev/?url=";
+async function viaWorker(url, ms){
+  const r = await fetchTimeout(WORKER + encodeURIComponent(url), ms);
+  if(!r.ok) throw new Error("worker " + r.status);
+  return JSON.parse(await r.text());
+}
+const PUBLIC_PROXIES = [
   async (url, ms) => { const r = await fetchTimeout("https://api.allorigins.win/raw?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
   async (url, ms) => { const r = await fetchTimeout("https://api.allorigins.win/get?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse((await r.json()).contents); },
   async (url, ms) => { const r = await fetchTimeout("https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
-  async (url, ms) => { const r = await fetchTimeout("https://corsproxy.io/?url=" + encodeURIComponent(url), ms); if(!r.ok) throw 0; return JSON.parse(await r.text()); },
 ];
-function raceProxies(url, validate, ms=8000){
-  const tries = PROXY_FETCHERS.map(f => f(url, ms).then(j => { if(validate && !validate(j)) throw new Error("invalid"); return j; }));
+async function raceProxies(url, validate, ms=8000){
+  // 1) 전용 워커 우선 (빠르고 안정적)
+  if(WORKER){
+    try{ const j = await viaWorker(url, ms); if(!validate || validate(j)) return j; }catch(e){ /* 폴백 */ }
+  }
+  // 2) 실패 시에만 공개 프록시 병렬 경쟁
+  const tries = PUBLIC_PROXIES.map(f => f(url, ms).then(j => { if(validate && !validate(j)) throw new Error("invalid"); return j; }));
   return Promise.any(tries).then(j => j).catch(() => null);
 }
 
