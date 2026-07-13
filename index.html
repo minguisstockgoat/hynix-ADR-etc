@@ -169,7 +169,7 @@
         <div class="meta"><span id="cTime">—</span><span id="cState">—</span></div>
       </div>
       <div class="panel card">
-        <div class="k">ADR <span class="sym">SKHYV</span></div>
+        <div class="k">ADR <span class="sym">SKHYV</span> <span class="badge live" id="aLive" style="display:none">실시간</span></div>
         <div class="v" id="aVal">—</div>
         <div class="chg" id="aChg">—</div>
         <div class="meta"><span id="aTime">—</span><span id="aState">—</span></div>
@@ -241,16 +241,15 @@
       <code>괴리율 = (ADR 실제가 − ADR 이론가) ÷ ADR 이론가 × 100</code>.
       양(+)이면 ADR이 본주 대비 <span class="pos">프리미엄</span>, 음(−)이면 <span class="neg">디스카운트</span>.
       <br>
-      <b>본주(KRX+NXT)</b> · 정규장(09:00~15:30)엔 KRX 실시간가, 장 시작 전(08:00~) 및 마감 후(~20:00)엔
-      <b>NXT 시간외가</b>를 자동으로 반영합니다. 각 값 옆에 거래소·상태를 함께 표시해요.
-      <br>
-      <b>환율</b> · 화면 열 때마다 <b>실시간(분단위) 환율</b>을 받아옵니다(장 마감·주말엔 최신 기준환율).
+      <b>실시간 수신</b> · 본주(KRX+NXT)·ADR·환율을 <b>새로고침(및 60초)마다 브라우저에서 직접</b> 받아옵니다.
+      본주는 정규장(09:00~15:30)엔 KRX, 그 외(08:00~09:00 / 15:30~20:00)엔 <b>NXT 시간외가</b>를 자동 반영.
+      실시간 수신 실패 시 GitHub Actions가 약 5분 주기로 저장한 스냅샷으로 자동 대체합니다.
       <br>
       <b>⚠ 두 시장은 시간대가 겹치지 않습니다.</b> 한국장(NXT 포함 08:00~20:00)과 미국장은 서로 열려있지 않아,
-      어느 순간이든 한쪽 시세는 직전 장 종가입니다. 주가 스냅샷은 GitHub Actions가 약 5분 주기로 수집하며, 페이지는 60초마다 갱신합니다.
+      어느 순간이든 한쪽 시세는 직전 장 종가입니다. 각 값 옆의 시각·상태를 참고하세요.
     </div>
     <div class="disclaimer">
-      데이터 출처: 네이버 금융(본주 KRX·NXT) · Yahoo Finance(ADR·환율 스냅샷) · Yahoo/fxratesapi/er-api(실시간 환율).
+      데이터 출처: 네이버 금융(본주 KRX·NXT) · Yahoo Finance(ADR·환율). 실시간 수신은 공개 CORS 프록시를 경유합니다.
       본 페이지는 정보 제공용이며 투자 자문이 아닙니다. 시세는 지연·오차가 있을 수 있습니다.
     </div>
   </footer>
@@ -264,6 +263,8 @@ const $ = (id) => document.getElementById(id);
 const state = {
   snap: null,
   ratio: 0.1,
+  liveCommon: null, // {source, effective, krx, nxt, fetchedAt}
+  liveAdr: null,    // {price, prevClose, marketTime, sessStart, sessEnd}
   liveFx: null,     // {rate, src, time, intraday}
   chartRange: 0,
 };
@@ -304,6 +305,8 @@ function nxtLabel(nxt){
   const sess = ({PRE_MARKET:"프리마켓", AFTER_MARKET:"애프터", REGULAR_MARKET:"정규(통합)"})[nxt.session] || nxt.session || "NXT";
   return `${sess}·${nxt.status==="OPEN"?"거래중":"마감"}`;
 }
+const _numko = (s) => { if(s==null||s===""||s==="-") return null; const n=parseFloat(String(s).replace(/,/g,"")); return isNaN(n)?null:n; };
+const _isoEpoch = (s) => { if(!s) return null; const t=Date.parse(s); return isNaN(t)?null:Math.floor(t/1000); };
 
 // ── fetch helpers ──────────────────────────────────────────
 function fetchTimeout(url, ms, opts={}){
@@ -311,6 +314,23 @@ function fetchTimeout(url, ms, opts={}){
   const id = setTimeout(()=>c.abort(), ms);
   return fetch(url, {...opts, signal:c.signal, cache:"no-store"}).finally(()=>clearTimeout(id));
 }
+// 공개 CORS 프록시(순차 폴백) — 브라우저에서 CORS 없는 API 직접 수신용
+const PROXIES = [
+  (u) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+  (u) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
+  (u) => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+];
+async function proxiedJson(url, ms=7000){
+  for(const mk of PROXIES){
+    try{
+      const r = await fetchTimeout(mk(url), ms);
+      if(!r.ok) continue;
+      return JSON.parse(await r.text());
+    }catch(e){ /* 다음 프록시 */ }
+  }
+  return null;
+}
+
 async function loadSnapshot(){
   try{
     const r = await fetchTimeout(DATA_URL + "?_=" + Date.now(), 9000);
@@ -323,52 +343,94 @@ async function loadSnapshot(){
     return true;
   }catch(e){ console.warn("snapshot load failed:", e); return false; }
 }
+
+// 본주: 네이버(KRX+NXT) 실시간 (프록시 경유)
+function parseNaverCommon(d){
+  const kP=_numko(d.closePrice), kChg=_numko(d.compareToPreviousClosePrice)||0;
+  const krx={price:kP, prevClose:kP!=null?kP-kChg:null, ts:_isoEpoch(d.localTradedAt),
+             status:d.marketStatus, fluctRatio:_numko(d.fluctuationsRatio)};
+  const om=d.overMarketPriceInfo||{}; let nxt=null;
+  if(om.overPrice!=null && om.overPrice!=="" && om.overPrice!=="-"){
+    const nP=_numko(om.overPrice), nChg=_numko(om.compareToPreviousClosePrice)||0;
+    nxt={price:nP, prevClose:nP!=null?nP-nChg:null, ts:_isoEpoch(om.localTradedAt),
+         session:om.tradingSessionType, status:om.overMarketStatus, fluctRatio:_numko(om.fluctuationsRatio)};
+  }
+  const krxOpen = krx.status==="OPEN";
+  const nxtExt = !!(nxt && nxt.price && nxt.status==="OPEN" && (nxt.session==="PRE_MARKET"||nxt.session==="AFTER_MARKET"));
+  let venue, leg;
+  if(krxOpen && krx.price){ venue="KRX"; leg=krx; }
+  else if(nxtExt){ venue="NXT"; leg=nxt; }
+  else if(krx.price){ venue="KRX"; leg=krx; }
+  else { venue = nxt?"NXT":"KRX"; leg = nxt||krx; }
+  return {source:"naver-live", effective:{venue, price:leg.price, prevClose:leg.prevClose, ts:leg.ts}, krx, nxt};
+}
+async function loadLiveCommon(){
+  const j = await proxiedJson("https://polling.finance.naver.com/api/realtime/domestic/stock/000660");
+  if(j && j.datas && j.datas[0] && _numko(j.datas[0].closePrice)!=null){
+    state.liveCommon = parseNaverCommon(j.datas[0]);
+    state.liveCommon.fetchedAt = Math.floor(Date.now()/1000);
+    return true;
+  }
+  state.liveCommon = null; return false;
+}
+// ADR: Yahoo SKHYV 실시간 (프록시 경유)
+async function loadLiveAdr(){
+  const j = await proxiedJson("https://query1.finance.yahoo.com/v8/finance/chart/SKHYV?range=1d&interval=1m");
+  const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+  if(m && m.regularMarketPrice){
+    const per=(m.currentTradingPeriod&&m.currentTradingPeriod.regular)||{};
+    state.liveAdr={price:m.regularMarketPrice, prevClose:m.chartPreviousClose||m.previousClose,
+      marketTime:m.regularMarketTime, sessStart:per.start, sessEnd:per.end};
+    return true;
+  }
+  state.liveAdr=null; return false;
+}
+// 환율: Yahoo KRW=X(분단위) 우선 → fxratesapi → er-api → jsdelivr
 async function loadLiveFx(){
-  const enc = encodeURIComponent;
   const yq = "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?range=1d&interval=1m";
-  // 1) Yahoo KRW=X (분단위 실시간) via CORS 프록시 → 가장 실시간
-  try{
-    const r = await fetchTimeout("https://api.allorigins.win/raw?url="+enc(yq), 8000);
-    if(r.ok){
-      const m = JSON.parse(await r.text()).chart.result[0].meta;
-      if(m && m.regularMarketPrice){
-        state.liveFx = {rate:m.regularMarketPrice, src:"Yahoo 실시간", time:m.regularMarketTime||Math.floor(Date.now()/1000), intraday:true};
-        return true;
-      }
-    }
-  }catch(e){ /* next */ }
-  // 2) fxratesapi (시간단위)
+  const j = await proxiedJson(yq, 7000);
+  const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+  if(m && m.regularMarketPrice){
+    state.liveFx={rate:m.regularMarketPrice, src:"Yahoo 실시간", time:m.regularMarketTime||Math.floor(Date.now()/1000), intraday:true};
+    return true;
+  }
   try{
     const r = await fetchTimeout("https://api.fxratesapi.com/latest?base=USD&currencies=KRW", 7000);
-    if(r.ok){ const j = await r.json();
-      if(j && j.rates && j.rates.KRW){
-        state.liveFx = {rate:j.rates.KRW, src:"fxratesapi(시간)", time:j.timestamp||Math.floor(Date.now()/1000), intraday:false}; return true; } }
-  }catch(e){ /* next */ }
-  // 3) er-api (일단위)
+    if(r.ok){ const x = await r.json(); if(x && x.rates && x.rates.KRW){
+      state.liveFx={rate:x.rates.KRW, src:"fxratesapi(시간)", time:x.timestamp||Math.floor(Date.now()/1000), intraday:false}; return true; } }
+  }catch(e){}
   try{
     const r = await fetchTimeout("https://open.er-api.com/v6/latest/USD", 7000);
-    const j = await r.json();
-    if(j && j.rates && j.rates.KRW){
-      state.liveFx = {rate:j.rates.KRW, src:"er-api(일)", time:j.time_last_update_unix||Math.floor(Date.now()/1000), intraday:false}; return true; }
-  }catch(e){ /* next */ }
-  // 4) jsdelivr (일단위)
+    const x = await r.json();
+    if(x && x.rates && x.rates.KRW){ state.liveFx={rate:x.rates.KRW, src:"er-api(일)", time:x.time_last_update_unix||Math.floor(Date.now()/1000), intraday:false}; return true; }
+  }catch(e){}
   try{
     const r = await fetchTimeout("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json", 7000);
-    const j = await r.json();
-    if(j && j.usd && j.usd.krw){
-      state.liveFx = {rate:j.usd.krw, src:"jsdelivr(일)", time:Math.floor(Date.now()/1000), intraday:false}; return true; }
-  }catch(e){ /* give up */ }
+    const x = await r.json();
+    if(x && x.usd && x.usd.krw){ state.liveFx={rate:x.usd.krw, src:"jsdelivr(일)", time:Math.floor(Date.now()/1000), intraday:false}; return true; }
+  }catch(e){}
   return false;
 }
 
-// ── core compute ───────────────────────────────────────────
+// ── 데이터 선택(실시간 우선, 스냅샷 폴백) ───────────────────
+function commonData(){
+  if(state.liveCommon && state.liveCommon.effective && state.liveCommon.effective.price!=null)
+    return {...state.liveCommon, live:true};
+  const cm = state.snap && state.snap.common;
+  if(cm) return {krx:cm.krx, nxt:cm.nxt, source:cm.source,
+    effective: cm.effective || {price:cm.price, prevClose:cm.prevClose, ts:cm.marketTime, venue:cm.exchange||"KRX"}, live:false};
+  return null;
+}
+function adrData(){
+  if(state.liveAdr && state.liveAdr.price!=null) return {...state.liveAdr, live:true};
+  const a = state.snap && state.snap.adr;
+  return a ? {...a, live:false} : null;
+}
 function effectiveFx(){
   const f = state.snap && state.snap.fx;
   const live = state.liveFx;
-  // 분단위 실시간 라이브 최우선
   if(live && live.intraday && live.rate)
     return {rate:live.rate, kind:"live-intraday", src:live.src, time:live.time};
-  // 아니면 스냅샷(Yahoo 5분)과 라이브(시간/일) 중 더 최근 것
   const snapT = (f && f.marketTime) || 0;
   const liveT = (live && live.time) || 0;
   if(f && f.price && !f.stale && snapT >= liveT)
@@ -378,11 +440,6 @@ function effectiveFx(){
   if(f && f.price)
     return {rate:f.price, kind:"snapshot", src:"Yahoo 스냅샷(직전)", time:f.marketTime};
   return {rate:null, kind:"none", src:"—", time:null};
-}
-function commonEffective(){
-  const cm = state.snap && state.snap.common;
-  if(!cm) return null;
-  return cm.effective || {price:cm.price, prevClose:cm.prevClose, ts:cm.marketTime, venue:cm.exchange||"KRX"};
 }
 function compute(common, adr, fx, ratio){
   if(!(common>0 && adr>0 && fx>0 && ratio>0)) return null;
@@ -395,14 +452,15 @@ function compute(common, adr, fx, ratio){
 // ── render ─────────────────────────────────────────────────
 function render(){
   const s = state.snap;
-  const eff = commonEffective();
+  const cd = commonData();
+  const ad = adrData();
+  const eff = cd ? cd.effective : null;
   const common = eff ? eff.price : null;
-  const adr = s && s.adr ? s.adr.price : null;
+  const adr = ad ? ad.price : null;
   const fx = effectiveFx();
   const ratio = state.ratio;
   const r = compute(common, adr, fx.rate, ratio);
 
-  // hero
   const hero = $("hero");
   const fxKindLabel = {"live-intraday":"실시간 환율","snapshot":"5분 스냅샷","live":"환율 "+fx.src,"none":"—"}[fx.kind] || "";
   if(r){
@@ -416,7 +474,7 @@ function render(){
       `<span class="${signCls(d)}">ADR이 이론가 대비 ${Math.abs(d).toFixed(2)}% ${isPrem?"비쌈":"쌈"}</span>`;
     $("explain").innerHTML =
       `ADR 실제가 <b>${usd(adr)}</b> vs 이론가 <b>${usd(r.fair)}</b>. ` +
-      `달리 보면 ADR이 매긴 본주 값은 <b>${krw(r.implied)}</b>인데 실제 본주(${eff?eff.venue:"—"})는 <b>${krw(common)}</b>입니다 ` +
+      `ADR이 매긴 본주 값은 <b>${krw(r.implied)}</b>인데 실제 본주(${eff?eff.venue:"—"})는 <b>${krw(common)}</b>입니다 ` +
       `(비율 1 ADR = ${ratio}주, 환율 ${nf2.format(fx.rate)} · ${fx.kind==="live-intraday"?"실시간":(fx.kind==="snapshot"?"5분":"최신")}).`;
     $("heroBasis").textContent = fxKindLabel;
     $("heroBasis").className = "badge " + (fx.kind==="live-intraday"?"live":"snap");
@@ -426,41 +484,39 @@ function render(){
   }
 
   // common card (KRX + NXT)
-  if(s && s.common && eff){
-    const cm = s.common;
+  if(cd && eff){
     $("cVal").innerHTML = krw(eff.price);
     const chg = eff.prevClose ? (eff.price - eff.prevClose)/eff.prevClose*100 : null;
     $("cChg").className = "chg " + signCls(chg);
     $("cChg").textContent = chg==null ? "" : `${pct(chg)} · 전일 ${krw(eff.prevClose)}`;
     const vb = $("cVenue");
     vb.style.display = "inline-block";
-    vb.textContent = (eff.venue||"KRX") + " 반영";
-    vb.className = "badge " + (eff.venue==="NXT" ? "live" : "snap");
-    // KRX / NXT 병기
+    vb.textContent = (eff.venue||"KRX") + (cd.live?" 실시간":" 반영");
+    vb.className = "badge " + (cd.live ? "live" : "snap");
     const parts = [];
-    if(cm.krx && cm.krx.price!=null){
-      const kr = cm.krx.fluctRatio;
-      parts.push(`KRX <b>${krw(cm.krx.price)}</b> <span class="${signCls(kr)}">${kr!=null?pct(kr):""}</span> <span class="mut">${krxStatusKo(cm.krx.status)}</span>`);
+    if(cd.krx && cd.krx.price!=null){
+      const kr = cd.krx.fluctRatio;
+      parts.push(`KRX <b>${krw(cd.krx.price)}</b> <span class="${signCls(kr)}">${kr!=null?pct(kr):""}</span> <span class="mut">${krxStatusKo(cd.krx.status)}</span>`);
     }
-    if(cm.nxt && cm.nxt.price!=null){
-      const nr = cm.nxt.fluctRatio;
-      parts.push(`NXT <b>${krw(cm.nxt.price)}</b> <span class="${signCls(nr)}">${nr!=null?pct(nr):""}</span> <span class="mut">${nxtLabel(cm.nxt)}</span>`);
+    if(cd.nxt && cd.nxt.price!=null){
+      const nr = cd.nxt.fluctRatio;
+      parts.push(`NXT <b>${krw(cd.nxt.price)}</b> <span class="${signCls(nr)}">${nr!=null?pct(nr):""}</span> <span class="mut">${nxtLabel(cd.nxt)}</span>`);
     }
     $("cVenues").innerHTML = parts.join("<br>") || "";
     $("cTime").textContent = `${kst(eff.ts)} · ${ago(eff.ts)}`;
-    $("cState").textContent = cm.source==="yahoo" ? "출처: Yahoo (NXT 미제공·폴백)" : "출처: 네이버 금융 (KRX+NXT)";
+    $("cState").textContent = (cd.live?"실시간 · ":"스냅샷 · ") + (cd.source==="yahoo"?"Yahoo(NXT미제공)":"네이버 금융(KRX+NXT)");
   }
 
   // adr card
-  if(s && s.adr){
-    const a = s.adr;
-    $("aVal").innerHTML = usd(a.price);
-    const chg = a.prevClose ? (a.price - a.prevClose)/a.prevClose*100 : null;
+  if(ad){
+    $("aVal").innerHTML = usd(ad.price);
+    const chg = ad.prevClose ? (ad.price - ad.prevClose)/ad.prevClose*100 : null;
     $("aChg").className = "chg " + signCls(chg);
-    $("aChg").textContent = chg==null ? "" : `${pct(chg)} · 전일 ${usd(a.prevClose)}`;
-    $("aTime").textContent = `${kst(a.marketTime)} · ${ago(a.marketTime)}`;
-    const st = sessionLabel(a);
-    $("aState").innerHTML = `<span class="dot ${st.on?"on":""}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${st.t}${a.stale?" · 재사용":""}`;
+    $("aChg").textContent = chg==null ? "" : `${pct(chg)} · 전일 ${usd(ad.prevClose)}`;
+    $("aTime").textContent = `${kst(ad.marketTime)} · ${ago(ad.marketTime)}`;
+    $("aLive").style.display = ad.live ? "inline-block" : "none";
+    const st = sessionLabel(ad);
+    $("aState").innerHTML = `<span class="dot ${st.on?"on":""}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${st.t}${ad.stale?" · 재사용":""}`;
   }
 
   // fx card
@@ -486,22 +542,22 @@ function render(){
   }
 
   $("tick").textContent = s && s.updated
-    ? `스냅샷 ${kst(Math.floor(new Date(s.updated).getTime()/1000))} 수집 · ${ago(Math.floor(new Date(s.updated).getTime()/1000))}`
-    : "스냅샷 없음";
+    ? `스냅샷 ${kst(Math.floor(new Date(s.updated).getTime()/1000))} · 실시간 수신 ${new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date())}`
+    : "실시간 수신 중";
   renderFreshNote();
   renderChart();
 }
 
 function renderFreshNote(){
+  const cd = commonData(), ad = adrData(), fx = effectiveFx();
   const s = state.snap;
-  if(!s){ $("freshNote").innerHTML = "<b>data.json</b> 을 불러오지 못했습니다. GitHub Actions가 최소 1회 실행되어야 스냅샷이 생성됩니다."; return; }
-  const errs = (s.errors && s.errors.length) ? ` · ⚠ 수집오류: ${s.errors.join("; ")}` : "";
-  const fx = effectiveFx();
-  const eff = commonEffective();
-  const fxAge = fx.kind==="live-intraday" ? "실시간" : (fx.kind==="snapshot" ? ago(fx.time) : ("최신·"+fx.src));
+  const errs = (s && s.errors && s.errors.length) ? ` · ⚠ 스냅샷 수집오류: ${s.errors.join("; ")}` : "";
+  const cL = cd ? (cd.live?"실시간":"스냅샷") : "—";
+  const aL = ad ? (ad.live?"실시간":"스냅샷") : "—";
+  const fL = fx.kind==="live-intraday" ? "실시간" : (fx.kind==="snapshot" ? "스냅샷" : "최신");
   $("freshNote").innerHTML =
-    `<b>데이터 신선도</b> · 본주(${eff?eff.venue:"—"}) ${ago(eff&&eff.ts)}, ADR ${ago(s.adr&&s.adr.marketTime)}, 환율 ${fxAge}. ` +
-    `히스토리 ${s.history?s.history.length:0}포인트.${errs}`;
+    `<b>데이터 신선도</b> · 본주 ${cL}(${cd&&cd.effective?cd.effective.venue:"—"}), ADR ${aL}, 환율 ${fL}. ` +
+    `히스토리 ${s&&s.history?s.history.length:0}포인트. 실시간 수신 실패 시 스냅샷으로 자동 대체.${errs}`;
 }
 
 // ── chart (hand-rolled SVG) ────────────────────────────────
@@ -564,9 +620,9 @@ function manualCalc(){
   $("mImp").textContent = krw(r.implied);
 }
 function loadCurrentIntoCalc(){
-  const eff = commonEffective(), fx = effectiveFx(), s = state.snap;
-  if(eff && eff.price) $("mCommon").value = eff.price;
-  if(s && s.adr) $("mAdr").value = s.adr.price;
+  const cd = commonData(), ad = adrData(), fx = effectiveFx();
+  if(cd && cd.effective && cd.effective.price) $("mCommon").value = cd.effective.price;
+  if(ad && ad.price) $("mAdr").value = ad.price;
   if(fx.rate) $("mFx").value = (Math.round(fx.rate*100)/100);
   $("mRatio").value = state.ratio;
   manualCalc();
@@ -578,10 +634,12 @@ async function refresh(spin=true){
   if(refreshing) return; refreshing=true;
   if(spin) $("refreshIco").classList.add("spin");
   $("livedot").className="dot"; $("livetxt").textContent="갱신 중";
-  const [okSnap] = await Promise.all([ loadSnapshot(), loadLiveFx() ]);
+  const [okSnap] = await Promise.all([ loadSnapshot(), loadLiveCommon(), loadLiveAdr(), loadLiveFx() ]);
   render();
-  if(okSnap){ $("livedot").className="dot on"; $("livetxt").textContent = (state.liveFx&&state.liveFx.intraday)?"실시간 환율":"자동 갱신 60초"; }
-  else if(state.liveFx){ $("livedot").className="dot neg"; $("livetxt").textContent="환율만 연결"; }
+  const liveCount = (state.liveCommon?1:0) + (state.liveFx&&state.liveFx.intraday?1:0);
+  if(state.liveCommon || (state.liveFx&&state.liveFx.intraday)){
+    $("livedot").className="dot on"; $("livetxt").textContent = "실시간 수신중";
+  }else if(okSnap){ $("livedot").className="dot"; $("livetxt").textContent="스냅샷(실시간 실패)"; }
   else{ $("livedot").className="dot"; $("livetxt").textContent="오프라인"; }
   $("refreshIco").classList.remove("spin");
   refreshing=false;
