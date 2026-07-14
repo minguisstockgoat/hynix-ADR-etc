@@ -1,74 +1,74 @@
 {
-  "updated": "2026-07-13T21:40:15+00:00",
+  "updated": "2026-07-14T05:58:45+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
-    "adr": "SKHYV",
+    "adr": "SKHY",
     "fx": "KRW=X"
   },
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1845000.0,
-      "prevClose": 2180000.0,
-      "ts": 1783924200,
-      "status": "CLOSE",
-      "fluctRatio": -15.37
+      "price": 1909000.0,
+      "prevClose": 1845000.0,
+      "ts": 1784008725,
+      "status": "OPEN",
+      "fluctRatio": 3.47
     },
     "nxt": {
-      "price": 1828000.0,
-      "prevClose": 2180000.0,
-      "ts": 1783940400,
-      "session": "AFTER_MARKET",
-      "status": "CLOSE",
-      "fluctRatio": -16.15
+      "price": 1908000.0,
+      "prevClose": 1845000.0,
+      "ts": 1784008725,
+      "session": "REGULAR_MARKET",
+      "status": "OPEN",
+      "fluctRatio": 3.41
     },
     "effective": {
       "venue": "KRX",
-      "price": 1845000.0,
-      "prevClose": 2180000.0,
-      "ts": 1783924200
+      "price": 1909000.0,
+      "prevClose": 1845000.0,
+      "ts": 1784008725
     },
-    "price": 1845000.0,
-    "prevClose": 2180000.0,
-    "marketTime": 1783924200,
+    "price": 1909000.0,
+    "prevClose": 1845000.0,
+    "marketTime": 1784008725,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
     "stale": false
   },
   "adr": {
-    "symbol": "SKHYV",
-    "price": 168.01,
+    "symbol": "SKHY",
+    "price": 152.35,
     "currency": "USD",
     "prevClose": 168.01,
-    "marketTime": 1783713600,
+    "marketTime": 1783972800,
     "marketState": null,
-    "exchange": "NMS",
+    "exchange": "NGM",
     "gmtoffset": -14400,
     "tzName": "America/New_York",
-    "sessStart": 1783949400,
-    "sessEnd": 1783972800,
+    "sessStart": 1784035800,
+    "sessEnd": 1784059200,
     "stale": false
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1497.02,
+    "price": 1490.78,
     "currency": "KRW",
-    "prevClose": 1498.87,
-    "marketTime": 1783976783,
+    "prevClose": 1497.02,
+    "marketTime": 1784008723,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
     "tzName": "Europe/London",
-    "sessStart": 1783897200,
-    "sessEnd": 1783983540,
+    "sessStart": 1783983600,
+    "sessEnd": 1784069940,
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 123.2448,
-  "implied_common_krw": 2515143.3,
-  "disparity_pct": 36.3221,
+  "adr_fair_usd": 128.0538,
+  "implied_common_krw": 2271203.33,
+  "disparity_pct": 18.9735,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -121,6 +121,15 @@
       "fx": 1497.02,
       "fair": 123.2448,
       "disparity": 36.3221
+    },
+    {
+      "t": "2026-07-14T05:58:45+00:00",
+      "common": 1909000.0,
+      "venue": "KRX",
+      "adr": 152.35,
+      "fx": 1490.78,
+      "fair": 128.0538,
+      "disparity": 18.9735
     }
   ]
 }
