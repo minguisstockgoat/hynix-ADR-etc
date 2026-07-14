@@ -21,7 +21,7 @@ import urllib.error
 # ── 설정 ────────────────────────────────────────────────────────────────
 COMMON_CODE = "000660"     # SK하이닉스 본주 (네이버 종목코드)
 COMMON_YH   = "000660.KS"  # Yahoo 폴백용
-ADR_SYM     = "SKHYV"       # SK하이닉스 ADR (Nasdaq, USD)
+ADR_SYM     = "SKHY"        # SK하이닉스 ADR (Nasdaq, USD). ※ SKHYV는 상장초기 WI 티커라 갱신 멈춤
 FX_SYM      = "KRW=X"       # USD/KRW
 RATIO       = 0.1           # 1 ADR = 보통주 0.1주 (10 ADR = 1주)
 MAX_HISTORY = 3000

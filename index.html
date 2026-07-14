@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SK하이닉스 본주 ⇄ ADR 괴리율</title>
-<meta name="description" content="SK하이닉스 본주(000660, KRX+NXT)와 나스닥 ADR(SKHYV)의 실시간 괴리율 대시보드" />
+<meta name="description" content="SK하이닉스 본주(000660, KRX+NXT)와 나스닥 ADR(SKHY)의 실시간 괴리율 대시보드" />
 <style>
   :root{
     --bg:#0d1015; --panel:#161b22; --panel2:#1c222c; --border:#262c37;
@@ -139,7 +139,7 @@
   <header class="top">
     <div class="title">
       <h1>SK하이닉스 본주 ⇄ ADR 괴리율</h1>
-      <div class="sub">본주 <b>000660</b> (KRX+NXT) vs 나스닥 ADR <b>SKHYV</b> · 1 ADR = 0.1주(10:1)</div>
+      <div class="sub">본주 <b>000660</b> (KRX+NXT) vs 나스닥 ADR <b>SKHY</b> · 1 ADR = 0.1주(10:1)</div>
       <div class="tick" id="tick">데이터 불러오는 중…</div>
     </div>
     <div class="top-actions">
@@ -169,7 +169,7 @@
         <div class="meta"><span id="cTime">—</span><span id="cState">—</span></div>
       </div>
       <div class="panel card">
-        <div class="k">ADR <span class="sym">SKHYV</span> <span class="badge live" id="aLive" style="display:none">실시간</span></div>
+        <div class="k">ADR <span class="sym">SKHY</span> <span class="badge live" id="aLive" style="display:none">실시간</span></div>
         <div class="v" id="aVal">—</div>
         <div class="chg" id="aChg">—</div>
         <div class="meta"><span id="aTime">—</span><span id="aState">—</span></div>
@@ -380,9 +380,9 @@ async function loadLiveCommon(){
   }
   return false;   // 수신 실패 시 직전 실시간값 유지 — 오래된 스냅샷으로 되돌아가지 않음
 }
-// ADR: Yahoo SKHYV 실시간 (프록시 경유)
+// ADR: Yahoo SKHY 실시간 (프록시 경유)
 async function loadLiveAdr(){
-  const j = await raceProxies("https://query1.finance.yahoo.com/v8/finance/chart/SKHYV?range=1d&interval=1m",
+  const j = await raceProxies("https://query1.finance.yahoo.com/v8/finance/chart/SKHY?range=1d&interval=1m",
     (x) => x && x.chart && x.chart.result && x.chart.result[0] && x.chart.result[0].meta && x.chart.result[0].meta.regularMarketPrice!=null);
   if(j){
     const m = j.chart.result[0].meta;
