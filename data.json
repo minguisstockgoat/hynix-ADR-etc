@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T07:25:45+00:00",
+  "updated": "2026-07-15T07:30:39+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -18,7 +18,7 @@
     "nxt": {
       "price": 2052000.0,
       "prevClose": 1913000.0,
-      "ts": 1784100345,
+      "ts": 1784100639,
       "session": "AFTER_MARKET",
       "status": "OPEN",
       "fluctRatio": 7.27
@@ -27,11 +27,11 @@
       "venue": "NXT",
       "price": 2052000.0,
       "prevClose": 1913000.0,
-      "ts": 1784100345
+      "ts": 1784100639
     },
     "price": 2052000.0,
     "prevClose": 1913000.0,
-    "marketTime": 1784100345,
+    "marketTime": 1784100639,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "NXT",
@@ -169,6 +169,15 @@
     },
     {
       "t": "2026-07-15T07:25:45+00:00",
+      "common": 2052000.0,
+      "venue": "NXT",
+      "adr": 193.92,
+      "fx": 1488.9,
+      "fair": 137.8199,
+      "disparity": 40.7054
+    },
+    {
+      "t": "2026-07-15T07:30:39+00:00",
       "common": 2052000.0,
       "venue": "NXT",
       "adr": 193.92,
