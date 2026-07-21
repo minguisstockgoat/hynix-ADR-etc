@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-21T07:43:52+00:00",
+  "updated": "2026-07-21T09:33:30+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -16,22 +16,22 @@
       "fluctRatio": 4.08
     },
     "nxt": {
-      "price": 1842000.0,
+      "price": 1870000.0,
       "prevClose": 1764000.0,
-      "ts": 1784619831,
+      "ts": 1784626408,
       "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 4.42
+      "fluctRatio": 6.01
     },
     "effective": {
       "venue": "NXT",
-      "price": 1842000.0,
+      "price": 1870000.0,
       "prevClose": 1764000.0,
-      "ts": 1784619831
+      "ts": 1784626408
     },
-    "price": 1842000.0,
+    "price": 1870000.0,
     "prevClose": 1764000.0,
-    "marketTime": 1784619831,
+    "marketTime": 1784626408,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "NXT",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1475.4,
+    "price": 1476.63,
     "currency": "KRW",
     "prevClose": 1475.41,
-    "marketTime": 1784619823,
+    "marketTime": 1784626400,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 124.8475,
-  "implied_common_krw": 2230214.64,
-  "disparity_pct": 21.0757,
+  "adr_fair_usd": 126.6397,
+  "implied_common_krw": 2232073.91,
+  "disparity_pct": 19.3622,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -346,6 +346,15 @@
       "fx": 1475.4,
       "fair": 124.8475,
       "disparity": 21.0757
+    },
+    {
+      "t": "2026-07-21T09:33:30+00:00",
+      "common": 1870000.0,
+      "venue": "NXT",
+      "adr": 151.16,
+      "fx": 1476.63,
+      "fair": 126.6397,
+      "disparity": 19.3622
     }
   ]
 }
