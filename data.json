@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-29T15:01:37+00:00",
+  "updated": "2026-07-29T16:24:39+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -39,10 +39,10 @@
   },
   "adr": {
     "symbol": "SKHY",
-    "price": 129.95,
+    "price": 126.755,
     "currency": "USD",
     "prevClose": 130.17,
-    "marketTime": 1785337295,
+    "marketTime": 1785342278,
     "marketState": null,
     "exchange": "NMS",
     "gmtoffset": -14400,
@@ -67,8 +67,8 @@
   },
   "errors": [],
   "adr_fair_usd": 96.4823,
-  "implied_common_krw": 1886977.96,
-  "disparity_pct": 34.6879,
+  "implied_common_krw": 1840584.0,
+  "disparity_pct": 31.3764,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -859,6 +859,15 @@
       "fx": 1452.08,
       "fair": 96.4823,
       "disparity": 34.6879
+    },
+    {
+      "t": "2026-07-29T16:24:39+00:00",
+      "common": 1401000.0,
+      "venue": "KRX",
+      "adr": 126.755,
+      "fx": 1452.08,
+      "fair": 96.4823,
+      "disparity": 31.3764
     }
   ]
 }
