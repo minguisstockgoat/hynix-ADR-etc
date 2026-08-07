@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-07T07:36:56+00:00",
+  "updated": "2026-08-07T14:02:48+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -16,33 +16,33 @@
       "fluctRatio": -4.88
     },
     "nxt": {
-      "price": 1461000.0,
+      "price": 1466000.0,
       "prevClose": 1495000.0,
-      "ts": 1786088216,
+      "ts": 1786100400,
       "session": "AFTER_MARKET",
-      "status": "OPEN",
-      "fluctRatio": -2.27
+      "status": "CLOSE",
+      "fluctRatio": -1.94
     },
     "effective": {
-      "venue": "NXT",
-      "price": 1461000.0,
+      "venue": "KRX",
+      "price": 1422000.0,
       "prevClose": 1495000.0,
-      "ts": 1786088216
+      "ts": 1786084200
     },
-    "price": 1461000.0,
+    "price": 1422000.0,
     "prevClose": 1495000.0,
-    "marketTime": 1786088216,
+    "marketTime": 1786084200,
     "currency": "KRW",
     "symbol": "000660",
-    "exchange": "NXT",
+    "exchange": "KRX",
     "stale": false
   },
   "adr": {
     "symbol": "SKHY",
-    "price": 143.53,
+    "price": 136.24,
     "currency": "USD",
-    "prevClose": 151.03,
-    "marketTime": 1786046400,
+    "prevClose": 143.53,
+    "marketTime": 1786111367,
     "marketState": null,
     "exchange": "NMS",
     "gmtoffset": -14400,
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1418.42,
+    "price": 1409.18,
     "currency": "KRW",
     "prevClose": 1422.69,
-    "marketTime": 1786088215,
+    "marketTime": 1786111364,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 103.0019,
-  "implied_common_krw": 2035858.23,
-  "disparity_pct": 39.3469,
+  "adr_fair_usd": 100.9097,
+  "implied_common_krw": 1919866.83,
+  "disparity_pct": 35.0117,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -1543,6 +1543,15 @@
       "fx": 1418.42,
       "fair": 103.0019,
       "disparity": 39.3469
+    },
+    {
+      "t": "2026-08-07T14:02:48+00:00",
+      "common": 1422000.0,
+      "venue": "KRX",
+      "adr": 136.24,
+      "fx": 1409.18,
+      "fair": 100.9097,
+      "disparity": 35.0117
     }
   ]
 }
