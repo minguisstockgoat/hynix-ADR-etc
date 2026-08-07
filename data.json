@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-07T00:28:06+00:00",
+  "updated": "2026-08-07T02:41:37+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1486000.0,
+      "price": 1426000.0,
       "prevClose": 1495000.0,
-      "ts": 1786062486,
+      "ts": 1786070497,
       "status": "OPEN",
-      "fluctRatio": -0.6
+      "fluctRatio": -4.62
     },
     "nxt": {
-      "price": 1486000.0,
+      "price": 1427000.0,
       "prevClose": 1495000.0,
-      "ts": 1786062486,
+      "ts": 1786070497,
       "session": "REGULAR_MARKET",
       "status": "OPEN",
-      "fluctRatio": -0.6
+      "fluctRatio": -4.55
     },
     "effective": {
       "venue": "KRX",
-      "price": 1486000.0,
+      "price": 1426000.0,
       "prevClose": 1495000.0,
-      "ts": 1786062486
+      "ts": 1786070497
     },
-    "price": 1486000.0,
+    "price": 1426000.0,
     "prevClose": 1495000.0,
-    "marketTime": 1786062486,
+    "marketTime": 1786070497,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1422.18,
+    "price": 1419.44,
     "currency": "KRW",
     "prevClose": 1422.69,
-    "marketTime": 1786062484,
+    "marketTime": 1786070486,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 104.4875,
-  "implied_common_krw": 2041254.95,
-  "disparity_pct": 37.3657,
+  "adr_fair_usd": 100.4622,
+  "implied_common_krw": 2037322.23,
+  "disparity_pct": 42.8697,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -1507,6 +1507,15 @@
       "fx": 1422.18,
       "fair": 104.4875,
       "disparity": 37.3657
+    },
+    {
+      "t": "2026-08-07T02:41:37+00:00",
+      "common": 1426000.0,
+      "venue": "KRX",
+      "adr": 143.53,
+      "fx": 1419.44,
+      "fair": 100.4622,
+      "disparity": 42.8697
     }
   ]
 }
