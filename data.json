@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-11T15:13:25+00:00",
+  "updated": "2026-08-11T16:10:06+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -39,10 +39,10 @@
   },
   "adr": {
     "symbol": "SKHY",
-    "price": 139.167,
+    "price": 139.16,
     "currency": "USD",
     "prevClose": 135.29,
-    "marketTime": 1786461202,
+    "marketTime": 1786464604,
     "marketState": null,
     "exchange": "NMS",
     "gmtoffset": -14400,
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1412.28,
+    "price": 1412.36,
     "currency": "KRW",
     "prevClose": 1417.72,
-    "marketTime": 1786461204,
+    "marketTime": 1786464597,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 100.9007,
-  "implied_common_krw": 1965427.71,
-  "disparity_pct": 37.9248,
+  "adr_fair_usd": 100.895,
+  "implied_common_krw": 1965440.18,
+  "disparity_pct": 37.9256,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -1921,6 +1921,15 @@
       "fx": 1412.28,
       "fair": 100.9007,
       "disparity": 37.9248
+    },
+    {
+      "t": "2026-08-11T16:10:06+00:00",
+      "common": 1425000.0,
+      "venue": "KRX",
+      "adr": 139.16,
+      "fx": 1412.36,
+      "fair": 100.895,
+      "disparity": 37.9256
     }
   ]
 }
