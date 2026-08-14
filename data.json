@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-14T05:49:23+00:00",
+  "updated": "2026-08-14T07:02:45+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,32 +9,32 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1652000.0,
+      "price": 1645000.0,
       "prevClose": 1593000.0,
-      "ts": 1786686563,
-      "status": "OPEN",
-      "fluctRatio": 3.7
+      "ts": 1786689000,
+      "status": "CLOSE",
+      "fluctRatio": 3.26
     },
     "nxt": {
-      "price": 1651000.0,
+      "price": 1647000.0,
       "prevClose": 1593000.0,
-      "ts": 1786686563,
-      "session": "REGULAR_MARKET",
+      "ts": 1786690964,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 3.64
+      "fluctRatio": 3.39
     },
     "effective": {
-      "venue": "KRX",
-      "price": 1652000.0,
+      "venue": "NXT",
+      "price": 1647000.0,
       "prevClose": 1593000.0,
-      "ts": 1786686563
+      "ts": 1786690964
     },
-    "price": 1652000.0,
+    "price": 1647000.0,
     "prevClose": 1593000.0,
-    "marketTime": 1786686563,
+    "marketTime": 1786690964,
     "currency": "KRW",
     "symbol": "000660",
-    "exchange": "KRX",
+    "exchange": "NXT",
     "stale": false
   },
   "adr": {
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1413.68,
+    "price": 1416.5,
     "currency": "KRW",
     "prevClose": 1418.13,
-    "marketTime": 1786686561,
+    "marketTime": 1786690960,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 116.8581,
-  "implied_common_krw": 2342043.66,
-  "disparity_pct": 41.7702,
+  "adr_fair_usd": 116.2725,
+  "implied_common_krw": 2346715.55,
+  "disparity_pct": 42.4842,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -2353,6 +2353,15 @@
       "fx": 1413.68,
       "fair": 116.8581,
       "disparity": 41.7702
+    },
+    {
+      "t": "2026-08-14T07:02:45+00:00",
+      "common": 1647000.0,
+      "venue": "NXT",
+      "adr": 165.67,
+      "fx": 1416.5,
+      "fair": 116.2725,
+      "disparity": 42.4842
     }
   ]
 }
