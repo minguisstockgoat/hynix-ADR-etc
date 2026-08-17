@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-15T00:24:49+00:00",
+  "updated": "2026-08-17T01:17:17+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -53,22 +53,22 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1416.48,
+    "price": 1411.13,
     "currency": "KRW",
-    "prevClose": 1418.13,
-    "marketTime": 1786741192,
+    "prevClose": 1416.48,
+    "marketTime": 1786929427,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
     "tzName": "Europe/London",
-    "sessStart": 1786662000,
-    "sessEnd": 1786748340,
+    "sessStart": 1786921200,
+    "sessEnd": 1787007540,
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 116.1329,
-  "implied_common_krw": 2356031.18,
-  "disparity_pct": 43.2238,
+  "adr_fair_usd": 116.5732,
+  "implied_common_krw": 2347132.53,
+  "disparity_pct": 42.6828,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -2542,6 +2542,15 @@
       "fx": 1416.48,
       "fair": 116.1329,
       "disparity": 43.2238
+    },
+    {
+      "t": "2026-08-17T01:17:17+00:00",
+      "common": 1645000.0,
+      "venue": "KRX",
+      "adr": 166.33,
+      "fx": 1411.13,
+      "fair": 116.5732,
+      "disparity": 42.6828
     }
   ]
 }
