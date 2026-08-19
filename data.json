@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-19T05:52:03+00:00",
+  "updated": "2026-08-19T06:29:45+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1508000.0,
+      "price": 1497000.0,
       "prevClose": 1662000.0,
-      "ts": 1787118722,
+      "ts": 1787120985,
       "status": "OPEN",
-      "fluctRatio": -9.27
+      "fluctRatio": -9.93
     },
     "nxt": {
-      "price": 1508000.0,
+      "price": 1497000.0,
       "prevClose": 1662000.0,
-      "ts": 1787118722,
+      "ts": 1787120400,
       "session": "REGULAR_MARKET",
       "status": "OPEN",
-      "fluctRatio": -9.27
+      "fluctRatio": -9.93
     },
     "effective": {
       "venue": "KRX",
-      "price": 1508000.0,
+      "price": 1497000.0,
       "prevClose": 1662000.0,
-      "ts": 1787118722
+      "ts": 1787120985
     },
-    "price": 1508000.0,
+    "price": 1497000.0,
     "prevClose": 1662000.0,
-    "marketTime": 1787118722,
+    "marketTime": 1787120985,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1398.08,
+    "price": 1397.4,
     "currency": "KRW",
     "prevClose": 1412.26,
-    "marketTime": 1787118718,
+    "marketTime": 1787120984,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 107.8622,
-  "implied_common_krw": 2175692.1,
-  "disparity_pct": 44.2767,
+  "adr_fair_usd": 107.1275,
+  "implied_common_krw": 2174633.88,
+  "disparity_pct": 45.2661,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -3262,6 +3262,15 @@
       "fx": 1398.08,
       "fair": 107.8622,
       "disparity": 44.2767
+    },
+    {
+      "t": "2026-08-19T06:29:45+00:00",
+      "common": 1497000.0,
+      "venue": "KRX",
+      "adr": 155.62,
+      "fx": 1397.4,
+      "fair": 107.1275,
+      "disparity": 45.2661
     }
   ]
 }
