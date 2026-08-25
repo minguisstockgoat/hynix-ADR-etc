@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-25T01:16:53+00:00",
+  "updated": "2026-08-25T02:32:38+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1571000.0,
+      "price": 1599000.0,
       "prevClose": 1671000.0,
-      "ts": 1787620612,
+      "ts": 1787625157,
       "status": "OPEN",
-      "fluctRatio": -5.98
+      "fluctRatio": -4.31
     },
     "nxt": {
-      "price": 1572000.0,
+      "price": 1600000.0,
       "prevClose": 1671000.0,
-      "ts": 1787620612,
+      "ts": 1787625157,
       "session": "REGULAR_MARKET",
       "status": "OPEN",
-      "fluctRatio": -5.92
+      "fluctRatio": -4.25
     },
     "effective": {
       "venue": "KRX",
-      "price": 1571000.0,
+      "price": 1599000.0,
       "prevClose": 1671000.0,
-      "ts": 1787620612
+      "ts": 1787625157
     },
-    "price": 1571000.0,
+    "price": 1599000.0,
     "prevClose": 1671000.0,
-    "marketTime": 1787620612,
+    "marketTime": 1787625157,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -52,11 +52,11 @@
     "stale": false
   },
   "fx": {
-    "symbol": "KRW=X",
-    "price": 1381.08,
+    "symbol": "USDKRW=X",
+    "price": 1381.78,
     "currency": "KRW",
     "prevClose": 1382.1,
-    "marketTime": 1787620611,
+    "marketTime": 1787625156,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 113.7516,
-  "implied_common_krw": 2145784.0,
-  "disparity_pct": 36.5871,
+  "adr_fair_usd": 115.7203,
+  "implied_common_krw": 2146871.59,
+  "disparity_pct": 34.2634,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -4414,6 +4414,15 @@
       "fx": 1381.08,
       "fair": 113.7516,
       "disparity": 36.5871
+    },
+    {
+      "t": "2026-08-25T02:32:38+00:00",
+      "common": 1599000.0,
+      "venue": "KRX",
+      "adr": 155.37,
+      "fx": 1381.78,
+      "fair": 115.7203,
+      "disparity": 34.2634
     }
   ]
 }
