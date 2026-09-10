@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-10T21:38:30+00:00",
+  "updated": "2026-09-10T23:22:14+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -10,31 +10,31 @@
     "source": "naver",
     "krx": {
       "price": 1853000.0,
-      "prevClose": 1856000.0,
-      "ts": 1789021800,
-      "status": "CLOSE",
-      "fluctRatio": -0.16
+      "prevClose": 1853000.0,
+      "ts": 1789082534,
+      "status": "PREOPEN",
+      "fluctRatio": 0.0
     },
     "nxt": {
-      "price": 1850000.0,
-      "prevClose": 1856000.0,
-      "ts": 1789038000,
-      "session": "AFTER_MARKET",
-      "status": "CLOSE",
-      "fluctRatio": -0.32
+      "price": 1791000.0,
+      "prevClose": 1853000.0,
+      "ts": 1789082534,
+      "session": "PRE_MARKET",
+      "status": "OPEN",
+      "fluctRatio": -3.35
     },
     "effective": {
-      "venue": "KRX",
-      "price": 1853000.0,
-      "prevClose": 1856000.0,
-      "ts": 1789021800
+      "venue": "NXT",
+      "price": 1791000.0,
+      "prevClose": 1853000.0,
+      "ts": 1789082534
     },
-    "price": 1853000.0,
-    "prevClose": 1856000.0,
-    "marketTime": 1789021800,
+    "price": 1791000.0,
+    "prevClose": 1853000.0,
+    "marketTime": 1789082534,
     "currency": "KRW",
     "symbol": "000660",
-    "exchange": "KRX",
+    "exchange": "NXT",
     "stale": false
   },
   "adr": {
@@ -53,22 +53,22 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1349.18,
+    "price": 1349.05,
     "currency": "KRW",
-    "prevClose": 1339.55,
-    "marketTime": 1789076302,
+    "prevClose": 1349.15,
+    "marketTime": 1789082533,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
     "tzName": "Europe/London",
-    "sessStart": 1788994800,
-    "sessEnd": 1789081140,
+    "sessStart": 1789081200,
+    "sessEnd": 1789167540,
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 137.3427,
-  "implied_common_krw": 2540505.94,
-  "disparity_pct": 37.1023,
+  "adr_fair_usd": 132.7601,
+  "implied_common_krw": 2540261.15,
+  "disparity_pct": 41.8348,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -5395,6 +5395,15 @@
       "fx": 1349.18,
       "fair": 137.3427,
       "disparity": 37.1023
+    },
+    {
+      "t": "2026-09-10T23:22:14+00:00",
+      "common": 1791000.0,
+      "venue": "NXT",
+      "adr": 188.3,
+      "fx": 1349.05,
+      "fair": 132.7601,
+      "disparity": 41.8348
     }
   ]
 }
