@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-10T01:22:45+00:00",
+  "updated": "2026-09-10T03:28:07+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1817000.0,
+      "price": 1847000.0,
       "prevClose": 1856000.0,
-      "ts": 1789003365,
+      "ts": 1789010887,
       "status": "OPEN",
-      "fluctRatio": -2.1
+      "fluctRatio": -0.48
     },
     "nxt": {
-      "price": 1817000.0,
+      "price": 1847000.0,
       "prevClose": 1856000.0,
-      "ts": 1789003365,
+      "ts": 1789010887,
       "session": "REGULAR_MARKET",
       "status": "OPEN",
-      "fluctRatio": -2.1
+      "fluctRatio": -0.48
     },
     "effective": {
       "venue": "KRX",
-      "price": 1817000.0,
+      "price": 1847000.0,
       "prevClose": 1856000.0,
-      "ts": 1789003365
+      "ts": 1789010887
     },
-    "price": 1817000.0,
+    "price": 1847000.0,
     "prevClose": 1856000.0,
-    "marketTime": 1789003365,
+    "marketTime": 1789010887,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1339.08,
+    "price": 1339.04,
     "currency": "KRW",
     "prevClose": 1339.55,
-    "marketTime": 1789003364,
+    "marketTime": 1789010882,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 135.6902,
-  "implied_common_krw": 2659814.6,
-  "disparity_pct": 46.385,
+  "adr_fair_usd": 137.9346,
+  "implied_common_krw": 2659735.15,
+  "disparity_pct": 44.003,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -5350,6 +5350,15 @@
       "fx": 1339.08,
       "fair": 135.6902,
       "disparity": 46.385
+    },
+    {
+      "t": "2026-09-10T03:28:07+00:00",
+      "common": 1847000.0,
+      "venue": "KRX",
+      "adr": 198.63,
+      "fx": 1339.04,
+      "fair": 137.9346,
+      "disparity": 44.003
     }
   ]
 }
