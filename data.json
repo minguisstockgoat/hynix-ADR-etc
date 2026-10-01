@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-01T04:35:35+00:00",
+  "updated": "2026-10-01T11:09:44+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1813000.0,
+      "price": 1828000.0,
       "prevClose": 1776000.0,
-      "ts": 1790829335,
-      "status": "OPEN",
-      "fluctRatio": 2.08
+      "ts": 1790852400,
+      "status": "CLOSE",
+      "fluctRatio": 2.93
     },
     "nxt": {
-      "price": 1812000.0,
+      "price": 1828000.0,
       "prevClose": 1776000.0,
-      "ts": 1790829335,
-      "session": "REGULAR_MARKET",
-      "status": "OPEN",
-      "fluctRatio": 2.03
+      "ts": 1790852400,
+      "session": "AFTER_MARKET",
+      "status": "CLOSE",
+      "fluctRatio": 2.93
     },
     "effective": {
       "venue": "KRX",
-      "price": 1813000.0,
+      "price": 1828000.0,
       "prevClose": 1776000.0,
-      "ts": 1790829335
+      "ts": 1790852400
     },
-    "price": 1813000.0,
+    "price": 1828000.0,
     "prevClose": 1776000.0,
-    "marketTime": 1790829335,
+    "marketTime": 1790852400,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1358.68,
+    "price": 1362.28,
     "currency": "KRW",
     "prevClose": 1356.54,
-    "marketTime": 1790829333,
+    "marketTime": 1790852978,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 133.4383,
-  "implied_common_krw": 2502009.22,
-  "disparity_pct": 38.0038,
+  "adr_fair_usd": 134.1868,
+  "implied_common_krw": 2508638.62,
+  "disparity_pct": 37.2341,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -6142,6 +6142,15 @@
       "fx": 1358.68,
       "fair": 133.4383,
       "disparity": 38.0038
+    },
+    {
+      "t": "2026-10-01T11:09:44+00:00",
+      "common": 1828000.0,
+      "venue": "KRX",
+      "adr": 184.15,
+      "fx": 1362.28,
+      "fair": 134.1868,
+      "disparity": 37.2341
     }
   ]
 }
