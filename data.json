@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-02T04:27:47+00:00",
+  "updated": "2026-10-02T10:41:27+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1846000.0,
+      "price": 1843000.0,
       "prevClose": 1833000.0,
-      "ts": 1790915266,
+      "ts": 1790937686,
       "status": "OPEN",
-      "fluctRatio": 0.71
+      "fluctRatio": 0.55
     },
     "nxt": {
-      "price": 1845000.0,
+      "price": 1843000.0,
       "prevClose": 1833000.0,
-      "ts": 1790915266,
-      "session": "REGULAR_MARKET",
+      "ts": 1790937686,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 0.65
+      "fluctRatio": 0.55
     },
     "effective": {
       "venue": "KRX",
-      "price": 1846000.0,
+      "price": 1843000.0,
       "prevClose": 1833000.0,
-      "ts": 1790915266
+      "ts": 1790937686
     },
-    "price": 1846000.0,
+    "price": 1843000.0,
     "prevClose": 1833000.0,
-    "marketTime": 1790915266,
+    "marketTime": 1790937686,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1357.08,
+    "price": 1348.88,
     "currency": "KRW",
     "prevClose": 1359.84,
-    "marketTime": 1790915264,
+    "marketTime": 1790937685,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 3600,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 136.0274,
-  "implied_common_krw": 2625949.8,
-  "disparity_pct": 42.2508,
+  "adr_fair_usd": 136.6319,
+  "implied_common_krw": 2610082.8,
+  "disparity_pct": 41.6214,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -6187,6 +6187,15 @@
       "fx": 1357.08,
       "fair": 136.0274,
       "disparity": 42.2508
+    },
+    {
+      "t": "2026-10-02T10:41:27+00:00",
+      "common": 1843000.0,
+      "venue": "KRX",
+      "adr": 193.5,
+      "fx": 1348.88,
+      "fair": 136.6319,
+      "disparity": 41.6214
     }
   ]
 }
