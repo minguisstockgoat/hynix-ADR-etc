@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27T04:01:24+00:00",
+  "updated": "2026-10-27T09:44:54+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1357000.0,
+      "price": 1363000.0,
       "prevClose": 1275000.0,
-      "ts": 1793073683,
+      "ts": 1793094294,
       "status": "OPEN",
-      "fluctRatio": 6.43
+      "fluctRatio": 6.9
     },
     "nxt": {
-      "price": 1357000.0,
+      "price": 1363000.0,
       "prevClose": 1275000.0,
-      "ts": 1793073683,
-      "session": "REGULAR_MARKET",
+      "ts": 1793094294,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 6.43
+      "fluctRatio": 6.9
     },
     "effective": {
       "venue": "KRX",
-      "price": 1357000.0,
+      "price": 1363000.0,
       "prevClose": 1275000.0,
-      "ts": 1793073683
+      "ts": 1793094294
     },
-    "price": 1357000.0,
+    "price": 1363000.0,
     "prevClose": 1275000.0,
-    "marketTime": 1793073683,
+    "marketTime": 1793094294,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1324.52,
+    "price": 1326.98,
     "currency": "KRW",
     "prevClose": 1325.17,
-    "marketTime": 1793073681,
+    "marketTime": 1793094291,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 0,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 102.4522,
-  "implied_common_krw": 1889030.42,
-  "disparity_pct": 39.2064,
+  "adr_fair_usd": 102.7144,
+  "implied_common_krw": 1892538.88,
+  "disparity_pct": 38.851,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -6988,6 +6988,15 @@
       "fx": 1324.52,
       "fair": 102.4522,
       "disparity": 39.2064
+    },
+    {
+      "t": "2026-10-27T09:44:54+00:00",
+      "common": 1363000.0,
+      "venue": "KRX",
+      "adr": 142.62,
+      "fx": 1326.98,
+      "fair": 102.7144,
+      "disparity": 38.851
     }
   ]
 }
