@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T04:26:20+00:00",
+  "updated": "2026-10-28T10:44:41+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1476000.0,
+      "price": 1507000.0,
       "prevClose": 1341000.0,
-      "ts": 1793161580,
+      "ts": 1793184281,
       "status": "OPEN",
-      "fluctRatio": 10.07
+      "fluctRatio": 12.38
     },
     "nxt": {
-      "price": 1476000.0,
+      "price": 1507000.0,
       "prevClose": 1341000.0,
-      "ts": 1793161580,
-      "session": "REGULAR_MARKET",
+      "ts": 1793184281,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 10.07
+      "fluctRatio": 12.38
     },
     "effective": {
       "venue": "KRX",
-      "price": 1476000.0,
+      "price": 1507000.0,
       "prevClose": 1341000.0,
-      "ts": 1793161580
+      "ts": 1793184281
     },
-    "price": 1476000.0,
+    "price": 1507000.0,
     "prevClose": 1341000.0,
-    "marketTime": 1793161580,
+    "marketTime": 1793184281,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1339.46,
+    "price": 1338.24,
     "currency": "KRW",
     "prevClose": 1326.83,
-    "marketTime": 1793161576,
+    "marketTime": 1793184271,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 0,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 110.1937,
-  "implied_common_krw": 1947039.06,
-  "disparity_pct": 31.9132,
+  "adr_fair_usd": 112.6106,
+  "implied_common_krw": 1945265.66,
+  "disparity_pct": 29.082,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -7033,6 +7033,15 @@
       "fx": 1339.46,
       "fair": 110.1937,
       "disparity": 31.9132
+    },
+    {
+      "t": "2026-10-28T10:44:41+00:00",
+      "common": 1507000.0,
+      "venue": "KRX",
+      "adr": 145.36,
+      "fx": 1338.24,
+      "fair": 112.6106,
+      "disparity": 29.082
     }
   ]
 }
