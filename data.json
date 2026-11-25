@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-25T05:03:12+00:00",
+  "updated": "2026-11-25T07:21:45+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1043000.0,
+      "price": 1024000.0,
       "prevClose": 1158000.0,
-      "ts": 1795582992,
+      "ts": 1795591305,
       "status": "OPEN",
-      "fluctRatio": -9.93
+      "fluctRatio": -11.57
     },
     "nxt": {
-      "price": 1043000.0,
+      "price": 1024000.0,
       "prevClose": 1158000.0,
-      "ts": 1795582992,
-      "session": "REGULAR_MARKET",
+      "ts": 1795591305,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": -9.93
+      "fluctRatio": -11.57
     },
     "effective": {
       "venue": "KRX",
-      "price": 1043000.0,
+      "price": 1024000.0,
       "prevClose": 1158000.0,
-      "ts": 1795582992
+      "ts": 1795591305
     },
-    "price": 1043000.0,
+    "price": 1024000.0,
     "prevClose": 1158000.0,
-    "marketTime": 1795582992,
+    "marketTime": 1795591305,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1342.98,
+    "price": 1342.0,
     "currency": "KRW",
     "prevClose": 1341.08,
-    "marketTime": 1795581437,
+    "marketTime": 1795589874,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 0,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 77.6631,
-  "implied_common_krw": 1503869.0,
-  "disparity_pct": 44.1869,
+  "adr_fair_usd": 76.304,
+  "implied_common_krw": 1502771.6,
+  "disparity_pct": 46.755,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -7753,6 +7753,15 @@
       "fx": 1342.98,
       "fair": 77.6631,
       "disparity": 44.1869
+    },
+    {
+      "t": "2026-11-25T07:21:45+00:00",
+      "common": 1024000.0,
+      "venue": "KRX",
+      "adr": 111.98,
+      "fx": 1342.0,
+      "fair": 76.304,
+      "disparity": 46.755
     }
   ]
 }
