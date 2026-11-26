@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-26T04:00:14+00:00",
+  "updated": "2026-11-26T07:10:51+00:00",
   "ratio": 0.1,
   "symbols": {
     "common": "000660",
@@ -9,29 +9,29 @@
   "common": {
     "source": "naver",
     "krx": {
-      "price": 1059000.0,
+      "price": 1056000.0,
       "prevClose": 1030000.0,
-      "ts": 1795665613,
+      "ts": 1795677051,
       "status": "OPEN",
-      "fluctRatio": 2.82
+      "fluctRatio": 2.52
     },
     "nxt": {
-      "price": 1060000.0,
+      "price": 1056000.0,
       "prevClose": 1030000.0,
-      "ts": 1795665613,
-      "session": "REGULAR_MARKET",
+      "ts": 1795677051,
+      "session": "AFTER_MARKET",
       "status": "OPEN",
-      "fluctRatio": 2.91
+      "fluctRatio": 2.52
     },
     "effective": {
       "venue": "KRX",
-      "price": 1059000.0,
+      "price": 1056000.0,
       "prevClose": 1030000.0,
-      "ts": 1795665613
+      "ts": 1795677051
     },
-    "price": 1059000.0,
+    "price": 1056000.0,
     "prevClose": 1030000.0,
-    "marketTime": 1795665613,
+    "marketTime": 1795677051,
     "currency": "KRW",
     "symbol": "000660",
     "exchange": "KRX",
@@ -53,10 +53,10 @@
   },
   "fx": {
     "symbol": "KRW=X",
-    "price": 1342.98,
+    "price": 1342.81,
     "currency": "KRW",
     "prevClose": 1343.24,
-    "marketTime": 1795665608,
+    "marketTime": 1795677038,
     "marketState": null,
     "exchange": "CCY",
     "gmtoffset": 0,
@@ -66,9 +66,9 @@
     "stale": false
   },
   "errors": [],
-  "adr_fair_usd": 78.8545,
-  "implied_common_krw": 1492587.97,
-  "disparity_pct": 40.9432,
+  "adr_fair_usd": 78.6411,
+  "implied_common_krw": 1492399.03,
+  "disparity_pct": 41.3257,
   "history": [
     {
       "t": "2026-07-12T11:50:41+00:00",
@@ -7780,6 +7780,15 @@
       "fx": 1342.98,
       "fair": 78.8545,
       "disparity": 40.9432
+    },
+    {
+      "t": "2026-11-26T07:10:51+00:00",
+      "common": 1056000.0,
+      "venue": "KRX",
+      "adr": 111.14,
+      "fx": 1342.81,
+      "fair": 78.6411,
+      "disparity": 41.3257
     }
   ]
 }
